@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Aniv/d</title>
+</head>
+<body>
+    <div id="nav">
+        <img id="logo" src="assets/logo.svg" onclick="location.href='/'">
+    </div>
+    <main>
+        <div id="playerContainer" class="showControls">
+            <video id="player" onloadeddata="time(this.duration)" onclick="playpause(true)"></video>
+            <div id="controlsbox">
+                <div id="controls">
+                    <button onclick="playpause()">
+                        <svg id="play" width="20" height="22" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 3.4197C1 1.89004 2.64731 0.926614 3.98052 1.67654L13.9011 7.25685C15.2604 8.02146 15.2604 9.97854 13.9011 10.7432L3.98052 16.3235C2.64732 17.0734 1 16.11 1 14.5803V3.4197Z" fill="#D9D9D9" stroke="#D9D9D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <svg id="pause" class="hidden" width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="5" height="16" rx="2" fill="#D9D9D9"/>
+                            <rect x="11" width="5" height="16" rx="2" fill="#D9D9D9"/>
+                        </svg>
+                    </button>
+                    <button onclick="skip(-10)">
+                        <svg width="22" height="22" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6.32121 15.4672C7.6003 15.997 9.00776 16.1356 10.3656 15.8655C11.7235 15.5954 12.9708 14.9287 13.9497 13.9497C14.9287 12.9708 15.5954 11.7235 15.8655 10.3656C16.1356 9.00776 15.997 7.6003 15.4672 6.32121C14.9373 5.04213 14.0401 3.94888 12.889 3.17971C11.7378 2.41054 10.3845 2 9 2C7.04 2 5.16555 2.77778 3.75778 4.13111L2 5.88889M2 5.88889V2L5.88889 5.88889H2Z" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button onclick="skip(10)">
+                        <svg width="22" height="22" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11.6788 15.4672C10.3997 15.997 8.99224 16.1356 7.63437 15.8655C6.2765 15.5954 5.02922 14.9287 4.05026 13.9497C3.07129 12.9708 2.4046 11.7235 2.13451 10.3656C1.86441 9.00776 2.00303 7.6003 2.53285 6.32121C3.06266 5.04213 3.95987 3.94888 5.11101 3.17971C6.26215 2.41054 7.61553 2 9 2C10.96 2 12.8344 2.77778 14.2422 4.13111L16 5.88889M16 5.88889V2L12.1111 5.88889H16Z" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div id="seekbar" onpointerup="seekEnd()" onpointerdown="seekStart(event)">
+                        <div id="seekBg">
+                            <div id="buffers"></div>
+                            <div id="progress"></div>
+                        </div>
+                    </div>
+                    <p id="time">-0</p>
+                    <button onclick="fullscreen()">
+                        <svg id="enterFS" width="22" height="22" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.88889 2H3.55556C3.143 2 2.74733 2.16389 2.45561 2.45561C2.16389 2.74733 2 3.143 2 3.55556V5.88889M16 5.88889V3.55556C16 3.143 15.8361 2.74733 15.5444 2.45561C15.2527 2.16389 14.857 2 14.4444 2H12.1111M2 12.1111V14.4444C2 14.857 2.16389 15.2527 2.45561 15.5444C2.74733 15.8361 3.143 16 3.55556 16H5.88889M12.1111 16H14.4444C14.857 16 15.2527 15.8361 15.5444 15.5444C15.8361 15.2527 16 14.857 16 14.4444V12.1111" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <svg id="exitFS" class="hidden" width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6.44444 2V4.66667C6.44444 5.13816 6.25714 5.59035 5.92375 5.92375C5.59035 6.25714 5.13816 6.44444 4.66667 6.44444H2M18 6.44444H15.3333C14.8618 6.44444 14.4097 6.25714 14.0763 5.92375C13.7429 5.59035 13.5556 5.13816 13.5556 4.66667V2M2 13.5556H4.66667C5.13816 13.5556 5.59035 13.7429 5.92375 14.0763C6.25714 14.4097 6.44444 14.8618 6.44444 15.3333V18M13.5556 18V15.3333C13.5556 14.8618 13.7429 14.4097 14.0763 14.0763C14.4097 13.7429 14.8618 13.5556 15.3333 13.5556H18" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <img id="watermark" src="assets/logo.svg">
+        </div>
+    </main>
+    <script src="watch.js"></script>
+</body>
+</html>
