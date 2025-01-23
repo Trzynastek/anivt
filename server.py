@@ -295,6 +295,9 @@ async def check(partial = False):
                     title = watchlist[index]['title'].get('english', None)
                     if not eng:
                         title = watchlist[index]['title'].get('romaji', None)
+                    if title is None:
+                        continue
+                    title = title.replace("'", '’')
                     if normItem in normTitle:
                         found = True
                         if item['episode'] == watchlist[index]['progress'] + 1:
@@ -358,16 +361,13 @@ async def watcher():
     cleanupCounter, fullCounter, patialCounter = 0, 0, 0
     while True:
         if cleanupCounter <= 0:
-            print('cleanup')
             await cleanup()
             cleanupCounter = config['cleanup_interval']
         if fullCounter <= 0:
-            print('full')
             await check()
             fullCounter = config['full_interval']
             patialCounter = config['partial_interval']
         if patialCounter <= 0:
-            print('partial')
             await check(True)
             patialCounter = config['partial_interval']
         cleanupCounter -= 1 
