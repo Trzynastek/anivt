@@ -44,12 +44,8 @@ function skip(amount) {
 function fullscreen() {
     if (document.fullscreenElement) {
         document.exitFullscreen();
-        document.getElementById('enterFS').classList.remove('hidden')
-        document.getElementById('exitFS').classList.add('hidden')
     } else {
         playerContainer.requestFullscreen();
-        document.getElementById('enterFS').classList.add('hidden')
-        document.getElementById('exitFS').classList.remove('hidden')
     }
 }
 
@@ -129,10 +125,6 @@ document.addEventListener("keydown", (event) => {
         case "f":
             fullscreen()
             break
-        case "Escape":
-            document.getElementById('enterFS').classList.remove('hidden')
-            document.getElementById('exitFS').classList.add('hidden')
-            break
     }
 })
 
@@ -142,9 +134,19 @@ window.addEventListener('focus', () => {
     }, 100);
   })
   
-  window.addEventListener('blur', () => {
-    focused = false
-    clearTimeout(focusTimer)
-  })
+window.addEventListener('blur', () => {
+  focused = false
+  clearTimeout(focusTimer)
+})
+
+window.addEventListener("fullscreenchange", () => {
+    if (document.fullscreenElement) {
+        document.getElementById('enterFS').classList.add('hidden')
+        document.getElementById('exitFS').classList.remove('hidden')
+    } else {
+        document.getElementById('enterFS').classList.remove('hidden')
+        document.getElementById('exitFS').classList.add('hidden')
+    }
+})
 
 setInterval(buffer, 100)

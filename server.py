@@ -39,6 +39,7 @@ if not os.path.exists('config.json'):
                 "acodec": "aac",
                 "threads": 0
             },
+            "subtitles_font": "Arial",
             "anilist_cid": None,
             "anilist_secret": None,
             "token": None
@@ -221,7 +222,7 @@ async def download(title, episode, magnet):
     db.update(title, 'status', 'encoding')
     ffmpeg.input(inp).output(
         out,
-        vf=f"subtitles={shlex.quote(inp.replace(':', '\\:'))}",
+        vf=f"subtitles={shlex.quote(inp.replace(':', '\\:'))}:force_style='{config['subtitles_font']}'",
         movflags='+faststart',
         **config['encoding']
     ).run(overwrite_output=True)
@@ -321,7 +322,6 @@ async def check():
                                     if not db.exists(title):
                                         db.add(title, item['episode'], watchlist[index]['cover'])
     for item in queue:
-        print(item['title'])
         if db.exists(item['title']):
             if db.read(item['title'], 'status') != 'ready':
                 while processing:
