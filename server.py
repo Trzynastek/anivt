@@ -22,13 +22,16 @@ CORS(app)
 queue = []
 queueTitles = []
 processing = False
+past = {}
 
 if not os.path.exists('config.json'):
     with open('config.json', 'w') as f:
         default = {
             "host": "127.0.0.1",
             "port": "7980",
-            "interval": 600,
+            "cleanup_interval": 3600,
+            "full_interval": 1200,
+            "partial_interval": 120,
             "remove_after": 86400,
             "rss": [],
             "encoding": {
@@ -231,10 +234,21 @@ async def download(title, episode, magnet):
     db.update(title, 'file', out.replace(f'{os.getcwd()}/public/', ''))
     processing = False
 
-async def check():
+async def check(partial = False):
     global processing
     global queue
     global queueTitles
+    global past
+    update = False
+    if partial:
+        for source in config['rss']:
+            last = feedparser.parse(source['url'])['entries'][0]
+            if len(past) == len(config['rss']):
+                if past[source['url']] != last:
+                    update = True
+            past[source['url']] = last
+    if partial and not update:
+        return
     for source in config['rss']:
         raw = feedparser.parse(source['url'])['entries']
         feed = []
@@ -341,10 +355,25 @@ async def cleanup():
                 db.remove(entry)
 
 async def watcher():
+    cleanupCounter, fullCounter, patialCounter = 0, 0, 0
     while True:
-        await cleanup()
-        await check()
-        await asyncio.sleep(config['interval'])
+        if cleanupCounter <= 0:
+            print('cleanup')
+            await cleanup()
+            cleanupCounter = config['cleanup_interval']
+        if fullCounter <= 0:
+            print('full')
+            await check()
+            fullCounter = config['full_interval']
+            patialCounter = config['partial_interval']
+        if patialCounter <= 0:
+            print('partial')
+            await check(True)
+            patialCounter = config['partial_interval']
+        cleanupCounter -= 1 
+        fullCounter -= 1
+        patialCounter -= 1
+        await asyncio.sleep(1)
 
 def server():
     app.run(port=config['port'],host=config['host'])
