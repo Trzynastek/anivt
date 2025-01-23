@@ -42,7 +42,11 @@ if not os.path.exists('config.json'):
                 "acodec": "aac",
                 "threads": 0
             },
-            "subtitles_font": "Arial",
+            "subtitles": {
+                "font": "Roboto Medium",
+                "size": 20,
+                "outline": 1.2
+            },
             "anilist_cid": None,
             "anilist_secret": None,
             "token": None
@@ -225,7 +229,7 @@ async def download(title, episode, magnet):
     db.update(title, 'status', 'encoding')
     ffmpeg.input(inp).output(
         out,
-        vf=f"subtitles={shlex.quote(inp.replace(':', '\\:'))}:force_style='{config['subtitles_font']}'",
+        vf=f"subtitles={shlex.quote(inp.replace(':', '\\:'))}:force_style='FontName={config['subtitles']['font']},FontSize={config['subtitles']['size']},Outline={config['subtitles']['outline']}''",
         movflags='+faststart',
         **config['encoding']
     ).run(overwrite_output=True)
