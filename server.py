@@ -263,7 +263,6 @@ async def check():
                 for item in item['synonyms']:
                     temp.append(item)
             filters.append(temp)
-        seen = set()
         for item in feed:
             found = False
             for index, subarray in enumerate(filters):
@@ -278,21 +277,18 @@ async def check():
                     normItem = re.sub(r'[^A-Za-z0-9]+', '', item['title'].lower())
                     if len(normTitle) == 0 or len(normItem) == 0:
                         continue
+                    title = watchlist[index]['title'].get('english', None)
+                    if not eng:
+                        title = watchlist[index]['title'].get('romaji', None)
                     if normItem in normTitle:
                         found = True
                         if item['episode'] == watchlist[index]['progress'] + 1:
-                            title = watchlist[index]['title'].get('english', None)
-                            if not eng:
-                                title = watchlist[index]['title'].get('romaji', None)
-                            obj = (title, item['episode'])
-                            if obj not in seen:
-                                seen.add(obj)
-                                entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
-                                if entry['title'] not in queueTitles:
-                                    queueTitles.append(entry['title'])
-                                    queue.append(entry)
-                                    if not db.exists(title):
-                                            db.add(title, item['episode'], watchlist[index]['cover'])
+                            entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
+                            if entry['title'] not in queueTitles:
+                                queueTitles.append(entry['title'])
+                                queue.append(entry)
+                                if not db.exists(title):
+                                        db.add(title, item['episode'], watchlist[index]['cover'])
                         elif item['episode'] > watchlist[index]['progress']:
                             query = f'{{ Page {{ media(search: "{title}", type: ANIME) {{ id title {{ romaji }} relations {{ nodes {{ episodes }} }} }} }} }}'
                             res = requests.post(
@@ -310,20 +306,22 @@ async def check():
                                 if node['episodes'] != None:
                                     episodes += node['episodes']
                             episodes += watchlist[index]['progress']
-                            if item['episode'] > episodes:
-                                title = watchlist[index]['title'].get('english', None)
-                                if not eng:
-                                    title = watchlist[index]['title'].get('romaji', None)
-                                obj = (title, item['episode'])
-                                if obj not in seen:
-                                    seen.add(obj)
-                                    entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
-                                    if entry['title'] not in queueTitles:
-                                        queueTitles.append(entry['title'])
-                                        queue.append(entry)
-                                        if not db.exists(title):
-                                            db.add(title, item['episode'], watchlist[index]['cover'])
+                            if item['episode'] == episodes + 1:
+                                entry = {'title': title, 'episode': watchlist[index]['progress'] + 1, 'magnet': item['link']}
+                                if entry['title'] not in queueTitles:
+                                    queueTitles.append(entry['title'])
+                                    queue.append(entry)
+                                    if not db.exists(title):
+                                        db.add(title, watchlist[index]['progress'] + 1, watchlist[index]['cover'])
+                            elif item['episode'] > episodes:
+                                entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
+                                if entry['title'] not in queueTitles:
+                                    queueTitles.append(entry['title'])
+                                    queue.append(entry)
+                                    if not db.exists(title):
+                                        db.add(title, item['episode'], watchlist[index]['cover'])
     for item in queue:
+        print(item['title'])
         if db.exists(item['title']):
             if db.read(item['title'], 'status') != 'ready':
                 while processing:
@@ -338,6 +336,8 @@ async def cleanup():
             now = datetime.now()
             watched = datetime.strptime(data[entry]['watched'], "%Y-%m-%d %H:%M:%S.%f")
             if (now - watched).total_seconds() > config['remove_after']:
+                file = db.read(entry, 'file')
+                os.remove(f'os.getcwd()/public/{file}')
                 db.remove(entry)
 
 async def watcher():
