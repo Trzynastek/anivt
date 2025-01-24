@@ -354,7 +354,7 @@ async def check(partial = False):
             if db.read(item['title'], item['episode'], 'status') != 'ready':
                 while processing:
                     await asyncio.sleep(20)
-                # await download(item['title'], item['episode'], item['magnet'])
+                await download(item['title'], item['episode'], item['magnet'])
                 queue.remove(item)
 
 async def cleanup():

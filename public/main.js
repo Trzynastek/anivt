@@ -41,4 +41,4 @@ function watch(file, title, episode) {
 }
 
 getDb()
-setInterval(getDb, 5000)
+setInterval(getDb, 15000)
