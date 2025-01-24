@@ -62,7 +62,8 @@ function progress() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                title: localStorage.getItem('title')
+                title: localStorage.getItem('title'),
+                episode: localStorage.getItem('episode')
             })
         })
     }

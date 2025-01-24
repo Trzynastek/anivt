@@ -13,7 +13,7 @@ async function getDb() {
         videos = data.videos
         Object.entries(videos).reverse().forEach(([key, entry]) => {
             element = `
-                <div class="card ${(entry.status == 'ready' ? '' : 'disabled')}" onclick="watch('${entry.file}', '${key}')">
+                <div class="card ${(entry.status == 'ready' ? '' : 'disabled')}" onclick="watch('${entry.file}', '${key.slice(5)}', '${key.episode}'">
                     <img class="cover" src="${entry.cover}">
                     <div class="shadow"></div>
                     <div class="content">
@@ -21,7 +21,7 @@ async function getDb() {
                             <p class="label">${(entry.watched != null ? tick : '')}EP ${entry.episode}</p>
                             <p class="label secondary ${(entry.status == 'ready' ? 'hidden' : '')}">${entry.status}</p>
                         </div>
-                        <p class="title">${key.replaceAll('<', '&lt;')}</p>
+                        <p class="title">${key.slice(5).replaceAll('<', '&lt;')}</p>
                     </div>
                 </div>
             `
@@ -36,6 +36,7 @@ function watch(file, title) {
     }
     localStorage.setItem('file', file)
     localStorage.setItem('title', title)
+    localStorage.setItem('episode', episode)
     location.href = '/watch.html'
 }
 

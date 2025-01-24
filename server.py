@@ -79,16 +79,19 @@ class dbHandler:
         with open(self.dbf, 'w', encoding='utf-8') as f:
             json.dump(self.db, f, ensure_ascii=False, indent=4)
     
-    def update(self, title, key, value):
-        self.db['videos'][title][key] = value
+    def update(self, title, episode, key, value):
+        target = f'{str(episode).zfill(5)}{title}'
+        self.db['videos'][target][key] = value
         self.save()
     
-    def remove(self, title):
-        del self.db['videos'][title]
+    def remove(self, title, episode):
+        target = f'{str(episode).zfill(5)}{title}'
+        del self.db['videos'][target]
         self.save()
     
     def add(self, title, episode, cover):
-        self.db['videos'][title] = {
+        target = f'{str(episode).zfill(5)}{title}'
+        self.db['videos'][target] = {
             "file": None,
             "episode": episode,
             "cover": cover,
@@ -97,11 +100,13 @@ class dbHandler:
         }
         self.save()
 
-    def exists(self, title):
-        return title in self.db['videos']
+    def exists(self, title, episode):
+        target = f'{str(episode).zfill(5)}{title}'
+        return target in self.db['videos']
     
-    def read(self, title, key):
-        return self.db['videos'][title][key]
+    def read(self, title, episode, key):
+        target = f'{str(episode).zfill(5)}{title}'
+        return self.db['videos'][target][key]
     
     def dump(self):
         return self.db['videos']
@@ -136,9 +141,10 @@ def apiAuth():
 @app.route('/api/watched', methods=['POST'])
 def markWatched():
     title = request.json['title']
-    if db.exists(title):
+    episode = request.json['episode']
+    if db.exists(title, episode):
         now = str(datetime.now())
-        db.update(title, 'watched', now)
+        db.update(title, episode, 'watched', now)
     return '', 200
 
 async def getUID():
@@ -218,15 +224,15 @@ async def download(title, episode, magnet):
     processing = True
     inp, out, exists, magnet, dl = await preCheck(title, episode, magnet)
     if not exists:
-        db.update(title, 'status', 'downloading')
+        db.update(title, episode, 'status', 'downloading')
         torrent = downloader(magnet, './mkv/', stop_after_download=True)
         await torrent.start_download()
         os.rename(dl, inp)
     if os.path.exists(out):
-        db.update(title, 'status', 'ready')
-        db.update(title, 'file', out.replace(f'{os.getcwd()}/public/', ''))
+        db.update(title, episode, 'status', 'ready')
+        db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
         return
-    db.update(title, 'status', 'encoding')
+    db.update(title, episode, 'status', 'encoding')
     ffmpeg.input(inp).output(
         out,
         vf=f"subtitles={shlex.quote(inp.replace(':', '\\:'))}:force_style='FontName={config['subtitles']['font']},FontSize={config['subtitles']['size']},Outline={config['subtitles']['outline']}''",
@@ -234,8 +240,8 @@ async def download(title, episode, magnet):
         **config['encoding']
     ).run(overwrite_output=True)
     os.remove(inp)
-    db.update(title, 'status', 'ready')
-    db.update(title, 'file', out.replace(f'{os.getcwd()}/public/', ''))
+    db.update(title, episode, 'status', 'ready')
+    db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
     processing = False
 
 async def check(partial = False):
@@ -304,47 +310,43 @@ async def check(partial = False):
                     title = title.replace("'", '’')
                     if normItem in normTitle:
                         found = True
-                        if item['episode'] == watchlist[index]['progress'] + 1:
-                            entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
-                            if entry['title'] not in queueTitles:
-                                queueTitles.append(entry['title'])
-                                queue.append(entry)
-                                if not db.exists(title):
-                                        db.add(title, item['episode'], watchlist[index]['cover'])
-                        elif item['episode'] > watchlist[index]['progress']:
-                            query = f'{{ Page {{ media(search: "{title}", type: ANIME) {{ id title {{ romaji }} relations {{ nodes {{ episodes }} }} }} }} }}'
-                            res = requests.post(
-                                'https://graphql.anilist.co',
-                                headers = {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json'
-                                },
-                                json = {'query': query}
-                            )
-                            data = res.json()
-                            nodes = data['data']['Page']['media'][0]['relations']['nodes']
-                            episodes = 0
-                            for node in nodes:
-                                if node['episodes'] != None:
-                                    episodes += node['episodes']
-                            episodes += watchlist[index]['progress']
-                            if item['episode'] == episodes + 1:
-                                entry = {'title': title, 'episode': watchlist[index]['progress'] + 1, 'magnet': item['link']}
-                                if entry['title'] not in queueTitles:
-                                    queueTitles.append(entry['title'])
-                                    queue.append(entry)
-                                    if not db.exists(title):
-                                        db.add(title, watchlist[index]['progress'] + 1, watchlist[index]['cover'])
-                            elif item['episode'] > episodes:
+                        if item['episode'] > watchlist[index]['progress']:
+                            if source['per_season_episodes']:
                                 entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
-                                if entry['title'] not in queueTitles:
-                                    queueTitles.append(entry['title'])
+                                if f'{str(episode).zfill(5)}{entry['title']}' not in queueTitles:
+                                    queueTitles.append(f'{str(item['episode']).zfill(5)}{entry['title']}')
                                     queue.append(entry)
-                                    if not db.exists(title):
-                                        db.add(title, item['episode'], watchlist[index]['cover'])
+                                    if not db.exists(title, item['episode']):
+                                            db.add(title, item['episode'], watchlist[index]['cover'])
+                            else:
+                                query = f'{{ Page {{ media(search: "{title}", type: ANIME) {{ id title {{ romaji }} relations {{ nodes {{ episodes }} }} }} }} }}'
+                                res = requests.post(
+                                    'https://graphql.anilist.co',
+                                    headers = {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    },
+                                    json = {'query': query}
+                                )
+                                data = res.json()
+                                nodes = data['data']['Page']['media'][0]['relations']['nodes']
+                                episodes = 0
+                                for node in nodes:
+                                    if node['episodes'] != None:
+                                        episodes += node['episodes']
+                                previous = episodes
+                                episodes += watchlist[index]['progress']
+                                if item['episode'] > episodes:
+                                    episode = item['episode'] - episodes
+                                    entry = {'title': title, 'episode': episode, 'magnet': item['link']}
+                                    if f'{str(episode).zfill(5)}{entry['title']}' not in queueTitles:
+                                        queueTitles.append(f'{str(episode).zfill(5)}{entry['title']}')
+                                        queue.append(entry)
+                                        if not db.exists(title, episode):
+                                            db.add(title, episode, watchlist[index]['cover'])
     for item in queue:
-        if db.exists(item['title']):
-            if db.read(item['title'], 'status') != 'ready':
+        if db.exists(item['title'], item['episode']):
+            if db.read(item['title'], item['episode'], 'status') != 'ready':
                 while processing:
                     await asyncio.sleep(20)
                 await download(item['title'], item['episode'], item['magnet'])
@@ -357,9 +359,9 @@ async def cleanup():
             now = datetime.now()
             watched = datetime.strptime(data[entry]['watched'], "%Y-%m-%d %H:%M:%S.%f")
             if (now - watched).total_seconds() > config['remove_after']:
-                file = db.read(entry, 'file')
+                file = db.read(entry, data[entry]['episode'], 'file')
                 os.remove(f'os.getcwd()/public/{file}')
-                db.remove(entry)
+                db.remove(entry, data[entry]['episode'])
 
 async def watcher():
     cleanupCounter, fullCounter, patialCounter = 0, 0, 0
