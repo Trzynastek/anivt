@@ -252,7 +252,10 @@ async def check(partial = False):
     update = False
     if partial:
         for source in config['rss']:
-            last = feedparser.parse(source['url'])['entries'][0]
+            feed =feedparser.parse(source['url'])['entries']
+            if len(feed) == 0:
+                continue
+            last = feed[0]
             if len(past) == len(config['rss']):
                 if past[source['url']] != last:
                     update = True
@@ -331,11 +334,13 @@ async def check(partial = False):
                                 data = res.json()
                                 nodes = data['data']['Page']['media'][0]['relations']['nodes']
                                 episodes = 0
-                                for node in nodes:
-                                    if node['episodes'] != None:
-                                        episodes += node['episodes']
-                                previous = episodes
-                                episodes += watchlist[index]['progress']
+                                if len(nodes) > 0:
+                                    for node in nodes:
+                                        if node['episodes'] != None:
+                                            episodes += node['episodes']
+                                    episodes += watchlist[index]['progress']
+                                else:
+                                    episodes = 0
                                 if item['episode'] > episodes:
                                     episode = item['episode'] - episodes
                                     entry = {'title': title, 'episode': episode, 'magnet': item['link']}
@@ -349,7 +354,7 @@ async def check(partial = False):
             if db.read(item['title'], item['episode'], 'status') != 'ready':
                 while processing:
                     await asyncio.sleep(20)
-                await download(item['title'], item['episode'], item['magnet'])
+                # await download(item['title'], item['episode'], item['magnet'])
                 queue.remove(item)
 
 async def cleanup():
