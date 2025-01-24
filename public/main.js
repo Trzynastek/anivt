@@ -40,5 +40,26 @@ function watch(file, title, episode) {
     location.href = '/watch.html'
 }
 
+async function getSchedule() {
+    elems.schedule.innerHTML = '<p class="header">Schedule</p>'
+    res = await fetch(`${window.location.origin}/api/schedule`)
+    list = await res.json()
+    list.sort((a, b) => a.airing - b.airing).forEach((entry) => {
+        title = entry.title.english || entry.title.romaji
+        console.log(new Date(entry.airing * 1000).toISOString())
+        time = new Date(entry.airing * 1000).toISOString().slice(11, 16)
+        elems.schedule.innerHTML += `
+            <div class="scheduleEntry${(entry.airing * 1000 < Date.now()) ? ' past' : ''}">
+                <div class="row">
+                    <p class="time">${time}</p>
+                    <p class="episode">EP ${entry.episode}</p>
+                </div>    
+                <p class="title">${title.replaceAll('<', '&lt;')}</p>
+            </div>
+        `
+    })
+}
+
 getDb()
+getSchedule()
 setInterval(getDb, 15000)

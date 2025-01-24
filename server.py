@@ -23,6 +23,7 @@ queue = []
 queueTitles = []
 processing = False
 past = {}
+schedule = []
 
 if not os.path.exists('config.json'):
     with open('config.json', 'w') as f:
@@ -147,6 +148,11 @@ def markWatched():
         db.update(title, episode, 'watched', now)
     return '', 200
 
+@app.route('/api/schedule', methods=['GET'])
+async def getSchedule():
+    global schedule
+    return schedule, 200
+
 async def getUID():
     query = '{ Viewer { id } }'
     success = False
@@ -168,7 +174,7 @@ async def getUID():
 
 async def getWatching():
     uid = await getUID()
-    query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ title {{ english romaji }} synonyms coverImage {{ large }} episodes }} }} }} }} }}'
+    query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt }} }} }} coverImage {{ large }} episodes }} }} }} }} }}'
     success = False
     while not success:
         res = requests.post(
@@ -190,9 +196,47 @@ async def getWatching():
         'title': item['media']['title'],
         'episodes': item['media']['episodes'],
         'cover': item['media']['coverImage']['large'],
-        'synonyms': item['media']['synonyms']
+        'synonyms': item['media']['synonyms'],
+        'airing': item['media']['airingSchedule']['edges']
     } for item in data]
     return data
+
+async def isToday(timestamp):
+    if datetime.fromtimestamp(timestamp).date() == datetime.now().date():
+        return True
+    return False
+
+async def updateSchedule():
+    global schedule
+    temp = []
+    watchlist = await getWatching()
+    for entry in watchlist:
+        progress = int(entry['progress'])
+        if len(entry['airing']) > progress:
+            airing = entry['airing'][progress]['node']['airingAt']
+            if await isToday(airing):
+                temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress']})
+                continue
+            if progress > 1:
+                airing = entry['airing'][progress - 1]['node']['airingAt']
+                if await isToday(airing):
+                    temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress'] + 1})
+                    continue
+            if progress > 2:
+                airing = entry['airing'][progress - 2]['node']['airingAt']
+                if await isToday(airing):
+                    temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress'] - 1})
+        elif len(entry['airing']) == progress:
+            if progress > 1:
+                airing = entry['airing'][progress - 1]['node']['airingAt']
+                if await isToday(airing):
+                    temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress'] + 1})
+                    continue
+            if progress > 2:
+                airing = entry['airing'][progress - 2]['node']['airingAt']
+                if await isToday(airing):
+                    temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress'] - 1})
+    schedule = temp
 
 # Stollen from https://github.com/DanySK/torrent2magnet 
 async def toMagnet(data):
@@ -369,8 +413,11 @@ async def cleanup():
                 db.remove(entry, data[entry]['episode'])
 
 async def watcher():
-    cleanupCounter, fullCounter, patialCounter = 0, 0, 0
+    cleanupCounter, fullCounter, patialCounter, scheduleCounter = 0, 0, 0, 0
     while True:
+        if scheduleCounter <= 0:
+            await updateSchedule()
+            scheduleCounter = 3600
         if cleanupCounter <= 0:
             await cleanup()
             cleanupCounter = config['cleanup_interval']

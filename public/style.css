@@ -1,4 +1,4 @@
-@import url(https://fonts.bunny.net/css?family=outfit:400,700|space-grotesk:600);
+@import url(https://fonts.bunny.net/css?family=outfit:400,600,700|space-grotesk:600);
 
 * {
     font-family: 'Outfit', sans-serif;
@@ -23,6 +23,10 @@ main {
     max-height: calc(100vh - 186px);
     overflow: hidden;
     position: relative;
+    display: grid;
+    grid-template-columns: auto 320px;
+    grid-template-rows: 1fr;
+    grid-column-gap: 20px;
 }
 main.shadowy::before {
     position: absolute;
@@ -52,6 +56,7 @@ main.shadowy::after {
     max-height: calc(100vh - 186px);
     padding: 10px 0;
     height: fit-content;
+    grid-area: 1 / 1 / 2 / 2;
 }
 #player {
     width: 100%;
@@ -67,6 +72,7 @@ main.shadowy::after {
     max-height: calc(100vh - 251px);
     height: fit-content;
     box-sizing: border-box;
+    grid-area: 1 / 1 / 2 / 3;
 }
 #playerContainer:fullscreen #player {
     border: none;
@@ -84,7 +90,7 @@ main.shadowy::after {
     top: min(3%, 20px);
     left: min(3%, 30px); 
     opacity: 0.7;
-    font-weight: bolder;
+    font-weight: 700;
     font-size: 1.5rem;
 }
 #controlsbox{
@@ -167,7 +173,7 @@ main.shadowy::after {
     padding: 0.125rem 0.5rem;
     color: #101010;
     font-size: 0.875rem;
-    font-weight: bold;
+    font-weight: 700;
     white-space: pre;
 }
 #nav {
@@ -176,6 +182,17 @@ main.shadowy::after {
 }
 #logo {
     cursor: pointer;
+}
+#schedule {
+    width: 100%;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    border: 1px solid #252525;
+    padding: 20px;
+    box-sizing: border-box;
+    grid-area: 1 / 2 / 2 / 3;
+    margin: 20px 0;
+    height: fit-content;
 }
 
 .tick {
@@ -239,7 +256,7 @@ main.shadowy::after {
     padding: 0.125rem 0.5rem;
     color: #101010;
     font-size: 0.875rem;
-    font-weight: bold;
+    font-weight: 700;
 }
 .label:has(.tick) {
     background-color: #7d7dff;
@@ -260,4 +277,56 @@ main.shadowy::after {
 }
 .hidden {
     display: none;
+}
+.header {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.scheduleEntry {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    position: relative;
+    margin-left: 10px;
+}
+.scheduleEntry:before {
+    content: '';
+    display: block;
+    position: absolute;
+    height: 100%;
+    width: 3px;
+    background-color: #757575;
+    left: -10px;
+    border-radius: 2px;
+}
+.scheduleEntry.past:before {
+    background-color: #7d7dff;
+}
+.scheduleEntry:last-of-type {
+    margin-bottom: 0;
+}
+.scheduleEntry .time {
+    margin-right: 10px;
+    color: #757575;
+    font-weight: 600;
+}
+.scheduleEntry .episode {
+    color: #454545;
+    font-weight: 600;
+}
+.scheduleEntry .title {
+    font-size: 1.25rem;
+    white-space: pre;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.loading {
+    font-size: 1.5rem;
+    padding: 50px;
+    text-align: center;
+}
+.row {
+    display: flex;
 }
