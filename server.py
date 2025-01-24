@@ -338,17 +338,17 @@ async def check(partial = False):
                                     for node in nodes:
                                         if node['episodes'] != None:
                                             episodes += node['episodes']
-                                    episodes += watchlist[index]['progress']
                                 else:
                                     episodes = 0
                                 if item['episode'] > episodes:
                                     episode = item['episode'] - episodes
-                                    entry = {'title': title, 'episode': episode, 'magnet': item['link']}
-                                    if f'{str(episode).zfill(5)}{entry['title']}' not in queueTitles:
-                                        queueTitles.append(f'{str(episode).zfill(5)}{entry['title']}')
-                                        queue.append(entry)
-                                        if not db.exists(title, episode):
-                                            db.add(title, episode, watchlist[index]['cover'])
+                                    if episode > watchlist[index]['progress']:
+                                        entry = {'title': title, 'episode': episode, 'magnet': item['link']}
+                                        if f'{str(episode).zfill(5)}{entry['title']}' not in queueTitles:
+                                            queueTitles.append(f'{str(episode).zfill(5)}{entry['title']}')
+                                            queue.append(entry)
+                                            if not db.exists(title, episode):
+                                                db.add(title, episode, watchlist[index]['cover'])
     for item in queue:
         if db.exists(item['title'], item['episode']):
             if db.read(item['title'], item['episode'], 'status') != 'ready':
