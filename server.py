@@ -313,7 +313,7 @@ async def check(partial = False):
                         if item['episode'] > watchlist[index]['progress']:
                             if source['per_season_episodes']:
                                 entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
-                                if f'{str(episode).zfill(5)}{entry['title']}' not in queueTitles:
+                                if f'{str(item['episode']).zfill(5)}{entry['title']}' not in queueTitles:
                                     queueTitles.append(f'{str(item['episode']).zfill(5)}{entry['title']}')
                                     queue.append(entry)
                                     if not db.exists(title, item['episode']):

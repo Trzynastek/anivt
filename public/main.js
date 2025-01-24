@@ -13,7 +13,7 @@ async function getDb() {
         videos = data.videos
         Object.entries(videos).reverse().forEach(([key, entry]) => {
             element = `
-                <div class="card ${(entry.status == 'ready' ? '' : 'disabled')}" onclick="watch('${entry.file}', '${key.slice(5)}', '${key.episode}'">
+                <div class="card ${(entry.status == 'ready' ? '' : 'disabled')}" onclick="watch('${entry.file}', '${key.slice(5)}', '${entry.episode}')">
                     <img class="cover" src="${entry.cover}">
                     <div class="shadow"></div>
                     <div class="content">
@@ -30,7 +30,7 @@ async function getDb() {
     })
 }
 
-function watch(file, title) {
+function watch(file, title, episode) {
     if (file == 'null') {
         return
     }
