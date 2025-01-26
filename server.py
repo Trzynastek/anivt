@@ -335,7 +335,7 @@ async def download(title, episode, magnet):
         mappings = ['0:v:0', '0:a:0']
     ffmpeg = (
         FFmpeg()
-        .input(inp, ss=0, t=10)
+        .input(inp)
         .output(
             out,
             vf=f"subtitles={shlex.quote(sub.replace(':', '\\:'))}",
