@@ -2,7 +2,7 @@ mkv/
 public/mp4/
 public/db.json
 config.json
-list.todo
+todo/
 install.txt
 tests/
 dockerfile

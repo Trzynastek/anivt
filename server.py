@@ -15,6 +15,7 @@ import hashlib
 import base64
 import threading
 from datetime import datetime
+from unidecode import unidecode
 
 app = Flask(__name__)
 CORS(app)
@@ -408,12 +409,12 @@ async def check(partial = False):
                         break
                     if title is None:
                         continue
-                    normTitle = re.sub(r'[^A-Za-z0-9]+', '', title.lower())
-                    normItem = re.sub(r'[^A-Za-z0-9]+', '', item['title'].lower())
+                    normTitle = re.sub(r'[^A-Za-z0-9]+', '', unidecode(title).lower())
+                    normItem = re.sub(r'[^A-Za-z0-9]+', '', unidecode(item['title']).lower())
                     if len(normTitle) == 0 or len(normItem) == 0:
                         continue
                     title = watchlist[index]['title'].get('english', None)
-                    if not eng:
+                    if not title:
                         title = watchlist[index]['title'].get('romaji', None)
                     if title is None:
                         continue
@@ -481,6 +482,12 @@ async def cleanup():
 async def watcher():
     cleanupCounter, fullCounter, patialCounter, scheduleCounter = 0, 0, 0, 0
     while True:
+        if scheduleCounter <= 0:
+            await updateSchedule()
+            scheduleCounter = 3600
+        if cleanupCounter <= 0:
+            await cleanup()
+            cleanupCounter = config['cleanup_interval']
         if fullCounter <= 0:
             await check()
             fullCounter = config['full_interval']
@@ -488,12 +495,6 @@ async def watcher():
         if patialCounter <= 0:
             await check(True)
             patialCounter = config['partial_interval']
-        if scheduleCounter <= 0:
-            await updateSchedule()
-            scheduleCounter = 3600
-        if cleanupCounter <= 0:
-            await cleanup()
-            cleanupCounter = config['cleanup_interval']
         cleanupCounter -= 1 
         fullCounter -= 1
         patialCounter -= 1
