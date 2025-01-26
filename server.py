@@ -44,9 +44,10 @@ if not os.path.exists('config.json'):
                 "threads": 0
             },
             "subtitles": {
-                "font": "Roboto Medium",
-                "size": 45,
-                "outline": 3
+                "Fontname": "Roboto Medium",
+                "Fontsize": 60,
+                "Outline": 4,
+                "MarginV": 60
             },
             "anilist_cid": None,
             "anilist_secret": None,
