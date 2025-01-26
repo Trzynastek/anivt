@@ -13,7 +13,7 @@ async function getDb() {
         videos = data.videos
         Object.entries(videos).reverse().forEach(([key, entry]) => {
             element = `
-                <div class="card ${(entry.status == 'ready' ? '' : 'disabled')}" onclick="watch('${entry.file}', '${key.slice(5)}', '${entry.episode}')">
+                <a class="card ${(entry.status == 'ready' ? '' : 'disabled')}" href="/watch.html?file=${entry.file}&title=${key.slice(5)}&episode=${entry.episode}">
                     <img class="cover" src="${entry.cover}">
                     <div class="shadow"></div>
                     <div class="content">
@@ -23,21 +23,11 @@ async function getDb() {
                         </div>
                         <p class="title">${key.slice(5).replaceAll('<', '&lt;')}</p>
                     </div>
-                </div>
+                </a>
             `
             elems.videos.innerHTML += element
         })
     })
-}
-
-function watch(file, title, episode) {
-    if (file == 'null') {
-        return
-    }
-    localStorage.setItem('file', file)
-    localStorage.setItem('title', title)
-    localStorage.setItem('episode', episode)
-    location.href = '/watch.html'
 }
 
 async function getSchedule() {

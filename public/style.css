@@ -7,6 +7,8 @@ body {
     background-color: #101010;
     margin: 0;
     height: 100vh;
+    width: 100vw;
+    overflow: hidden;
 }
 p {
     margin: 0;
@@ -46,6 +48,12 @@ main.shadowy::after {
     background: linear-gradient(0deg, #101010ff 0%, #10101000 100%);
     z-index: 10;
     bottom: 0;
+}
+a {
+    text-decoration: none;
+}
+a:visited {
+    color: unset;
 }
 
 #videos {

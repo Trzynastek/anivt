@@ -3,7 +3,9 @@ playerContainer = document.getElementById('playerContainer')
 buffers = document.getElementById('buffers')
 seekbar = document.getElementById('seekbar')
 
-player.src = localStorage.getItem('file')
+params = urlParams = new URLSearchParams(window.location.search)
+
+player.src = params.get('file')
 marked = false
 
 function playpause(checkfocus = false) {
@@ -62,8 +64,8 @@ function progress() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                title: localStorage.getItem('title'),
-                episode: localStorage.getItem('episode')
+                title: params.get('title'),
+                episode: params.get('episode')
             })
         })
     }
