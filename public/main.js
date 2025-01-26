@@ -46,10 +46,10 @@ async function getSchedule() {
     list = await res.json()
     list.sort((a, b) => a.airing - b.airing).forEach((entry) => {
         title = entry.title.english || entry.title.romaji
-        console.log(new Date(entry.airing * 1000).toISOString())
-        time = new Date(entry.airing * 1000).toISOString().slice(11, 16)
+        time = new Date(entry.airing * 1000);
+        time = time.getHours().toString().padStart(2, '0') + ':' + time.getMinutes().toString().padStart(2, '0');
         elems.schedule.innerHTML += `
-            <div class="scheduleEntry${(entry.airing * 1000 < Date.now()) ? ' past' : ''}">
+            <div class="scheduleEntry${(entry.airing * 1000 < Date.now())? ' past' : ''}">
                 <div class="row">
                     <p class="time">${time}</p>
                     <p class="episode">EP ${entry.episode}</p>

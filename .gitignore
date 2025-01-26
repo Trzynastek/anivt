@@ -5,3 +5,5 @@ config.json
 list.todo
 install.txt
 tests/
+dockerfile
+subtitles/

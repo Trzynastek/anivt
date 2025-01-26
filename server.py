@@ -3,7 +3,7 @@ from flask_cors import CORS
 import feedparser
 import asyncio
 from torrentp import TorrentDownloader as downloader
-import ffmpeg
+from ffmpeg.asyncio import FFmpeg
 import urllib.parse
 import os
 import shlex
@@ -45,8 +45,8 @@ if not os.path.exists('config.json'):
             },
             "subtitles": {
                 "font": "Roboto Medium",
-                "size": 20,
-                "outline": 1.2
+                "size": 45,
+                "outline": 3
             },
             "anilist_cid": None,
             "anilist_secret": None,
@@ -251,39 +251,101 @@ async def toMagnet(data):
              + '&tr=' + metadata[b'announce'].decode()\
              + '&xl=' + str(metadata[b'info'][b'length'])
 
+async def patchSubtiles(inp, sub):
+    ffmpeg = (
+        FFmpeg()
+        .input(inp)
+        .output(sub)
+    )
+    await ffmpeg.execute()
+    with open(sub, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    styles = False
+    for line in lines:
+        if line.startswith('[V4+ Styles]'):
+            styles = True
+        elif line.startswith('['):
+            styles = False
+        elif line.startswith('Format:') and styles:
+            keys = line.replace(' ', '').split(',')
+    overrides = []
+    for key in config['subtitles']:
+        if key in keys:
+            overrides.append({'index': keys.index(key), 'value': config['subtitles'][key]})
+    with open(sub, 'w', encoding='utf-8') as f:
+        for line in lines:
+            if line.startswith('Style:'):
+                values = line.strip().split(',')
+                for entry in overrides:
+                    values[entry['index']] = entry['value']
+                line = ', '.join(str(v) for v in values) + '\n'
+                f.write(line)
+            elif line.startswith('PlayRes'):
+                if line.startswith('PlayResX'):
+                    line = 'PlayResX: 1920 \n'
+                else:
+                    line = 'PlayResY: 1080 \n'
+                f.write(line)
+            else:
+                f.write(line)
+
 async def preCheck(title, episode, magnet):
-    res = requests.get(magnet)
-    data = res.content
-    magnet = await toMagnet(data)
-    query = urllib.parse.urlparse(magnet).query
-    dl = os.getcwd() + '/mkv/' + urllib.parse.parse_qs(query).get('dn', [None])[0]
-    file = os.getcwd() + '/mkv/' + f'{title}_[Ep.{episode}].mkv'
+    file = os.getcwd() + '/mkv/' + f'{title}[Ep.{episode}].mkv'
     inp = re.sub(r'[^A-Za-z0-9 /\[\].]+', '', file).replace(' ', '_')
     out = inp.replace('.mkv', '.mp4').replace('/mkv/', '/public/mp4/')
+    sub = inp.replace('.mkv', '.ass').replace('/mkv/', '/subtitles/')
     exists = os.path.exists(inp) or os.path.exists(out)
-    return (inp, out, exists, magnet, dl)
+    if not exists:
+        res = requests.get(magnet)
+        data = res.content
+        magnet = await toMagnet(data)
+        query = urllib.parse.urlparse(magnet).query
+        dl = os.getcwd() + '/mkv/' + urllib.parse.parse_qs(query).get('dn', [None])[0]
+    else:
+        magnet, dl = None, None
+    return (inp, out, exists, magnet, dl, sub)
 
 async def download(title, episode, magnet):
     global processing
     processing = True
-    inp, out, exists, magnet, dl = await preCheck(title, episode, magnet)
+    inp, out, exists, magnet, dl, sub = await preCheck(title, episode, magnet)
     if not exists:
         db.update(title, episode, 'status', 'downloading')
         torrent = downloader(magnet, './mkv/', stop_after_download=True)
         await torrent.start_download()
         os.rename(dl, inp)
+    if not os.path.exists(sub):
+        await patchSubtiles(inp, sub)
     if os.path.exists(out):
         db.update(title, episode, 'status', 'ready')
         db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
         return
     db.update(title, episode, 'status', 'encoding')
-    ffmpeg.input(inp).output(
-        out,
-        vf=f"subtitles={shlex.quote(inp.replace(':', '\\:'))}:force_style='FontName={config['subtitles']['font']},FontSize={config['subtitles']['size']},Outline={config['subtitles']['outline']}''",
-        movflags='+faststart',
-        **config['encoding']
-    ).run(overwrite_output=True)
+    ffprobe = FFmpeg(executable="ffprobe").input(
+        inp,
+        print_format="json",
+        show_streams=None,
+        select_streams='a'
+    )
+    streams = json.loads(await ffprobe.execute())['streams']
+    if len(streams) > 1:
+        mappings = ['0:v:0', '0:a:1']
+    else:
+        mappings = ['0:v:0', '0:a:0']
+    ffmpeg = (
+        FFmpeg()
+        .input(inp, ss=0, t=10)
+        .output(
+            out,
+            vf=f"subtitles={shlex.quote(sub.replace(':', '\\:'))}",
+            movflags="+faststart",
+            map=mappings,
+            **config['encoding']
+        )
+    )
+    await ffmpeg.execute()
     os.remove(inp)
+    os.remove(sub)
     db.update(title, episode, 'status', 'ready')
     db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
     processing = False
@@ -406,21 +468,18 @@ async def cleanup():
     for entry in list(data.keys()):
         if data[entry]['watched'] != None:
             now = datetime.now()
+            title = entry[5:]
             watched = datetime.strptime(data[entry]['watched'], "%Y-%m-%d %H:%M:%S.%f")
             if (now - watched).total_seconds() > config['remove_after']:
-                file = db.read(entry, data[entry]['episode'], 'file')
-                os.remove(f'os.getcwd()/public/{file}')
-                db.remove(entry, data[entry]['episode'])
+                file = db.read(title, data[entry]['episode'], 'file')
+                file = f'{os.getcwd()}/public/{file}'
+                if os.path.exists(file):
+                    os.remove(file)
+                db.remove(title, data[entry]['episode'])
 
 async def watcher():
     cleanupCounter, fullCounter, patialCounter, scheduleCounter = 0, 0, 0, 0
     while True:
-        if scheduleCounter <= 0:
-            await updateSchedule()
-            scheduleCounter = 3600
-        if cleanupCounter <= 0:
-            await cleanup()
-            cleanupCounter = config['cleanup_interval']
         if fullCounter <= 0:
             await check()
             fullCounter = config['full_interval']
@@ -428,6 +487,12 @@ async def watcher():
         if patialCounter <= 0:
             await check(True)
             patialCounter = config['partial_interval']
+        if scheduleCounter <= 0:
+            await updateSchedule()
+            scheduleCounter = 3600
+        if cleanupCounter <= 0:
+            await cleanup()
+            cleanupCounter = config['cleanup_interval']
         cleanupCounter -= 1 
         fullCounter -= 1
         patialCounter -= 1

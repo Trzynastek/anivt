@@ -24,8 +24,7 @@ main {
     overflow: hidden;
     position: relative;
     display: grid;
-    grid-template-columns: auto 320px;
-    grid-template-rows: 1fr;
+    grid-template-columns: auto minmax(320px, 35%);
     grid-column-gap: 20px;
 }
 main.shadowy::before {
@@ -50,13 +49,16 @@ main.shadowy::after {
 }
 
 #videos {
-    display: flex;
     flex-wrap: wrap;
     overflow: scroll;
     max-height: calc(100vh - 186px);
     padding: 10px 0;
     height: fit-content;
     grid-area: 1 / 1 / 2 / 2;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 230px);
+    grid-gap: 10px;
+    margin: 10px 0;
 }
 #player {
     width: 100%;
@@ -217,7 +219,6 @@ main.shadowy::after {
     display: flex;
     align-items: end;
     flex: 0 0 230px;
-    margin: 10px;
     cursor: pointer;
 }
 .disabled {
@@ -316,7 +317,7 @@ main.shadowy::after {
     font-weight: 600;
 }
 .scheduleEntry .title {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     white-space: pre;
     max-width: 100%;
     text-overflow: ellipsis;
