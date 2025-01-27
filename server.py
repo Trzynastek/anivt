@@ -30,7 +30,7 @@ schedule = []
 if not os.path.exists('config.json'):
     with open('config.json', 'w') as f:
         default = {
-            "host": "127.0.0.1",
+            "host": "0.0.0.0",
             "port": "7980",
             "cleanup_interval": 3600,
             "full_interval": 1200,
@@ -317,14 +317,16 @@ async def download(title, episode, magnet):
         session = lt.session()
         params = {
             'save_path': './mkv/',
-            'storage_mode': lt.storage_mode_t.storage_mode_sparse,
+            'url': magnet
         }
-        torrent = lt.add_magnet_uri(session, magnet, params)
+        torrent = session.add_torrent(params)
         status = torrent.status()
         while not status.is_seeding:
             status = torrent.status()
             db.update(title, episode, 'status', f'Downloading {round(status.progress * 100)}%')
             await asyncio.sleep(1)
+        session.remove_torrent(torrent)
+        session.pause()
         os.rename(dl, inp)
     if not os.path.exists(sub):
         await patchSubtiles(inp, sub)

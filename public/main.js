@@ -52,4 +52,4 @@ async function getSchedule() {
 
 getDb()
 getSchedule()
-setInterval(getDb, 15000)
+setInterval(getDb, 10000)

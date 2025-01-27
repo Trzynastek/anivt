@@ -2,11 +2,12 @@ FROM python:3.10-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
-    fonts-roboto
+    fonts-roboto && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN pip install \
+RUN pip install --no-cache-dir \
     "flask[async]" \
     flask-cors \
     feedparser \
@@ -23,10 +24,9 @@ COPY public/ /anivt/public/
 COPY config.json /anivt/config.json
 COPY server.py /anivt/server.py
 
-RUN rm -rf  /anivt/public/mp4/*
-RUN mkdir -p /anivt/public/mp4
-RUN mkdir /anivt/mkv
-RUN mkdir /anivt/subtitles
+RUN mkdir -p /anivt/public/mp4 && \
+    mkdir /anivt/mkv && \
+    mkdir /anivt/subtitles
 
 EXPOSE 7980
 

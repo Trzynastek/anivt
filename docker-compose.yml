@@ -4,7 +4,7 @@ services:
     image: anivt
     container_name: anivt
     ports:
-      - 5000:7980
+      - 7980:7980
     volumes:
       - ./config.json:/anivt/config.json
       - ./mkv:/anivt/mkv
