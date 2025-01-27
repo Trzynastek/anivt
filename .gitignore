@@ -5,5 +5,5 @@ config.json
 todo/
 install.txt
 tests/
-dockerfile
 subtitles/
+.venv/

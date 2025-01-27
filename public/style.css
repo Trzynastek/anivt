@@ -61,10 +61,10 @@ a:visited {
     overflow: scroll;
     max-height: calc(100vh - 186px);
     padding: 10px 0;
-    height: fit-content;
     grid-area: 1 / 1 / 2 / 2;
     display: grid;
     grid-template-columns: repeat(auto-fit, 230px);
+    grid-template-rows: repeat(auto-fit, 325px);
     grid-gap: 10px;
     margin: 10px 0;
 }

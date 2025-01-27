@@ -2,7 +2,8 @@ from flask import Flask, request, send_from_directory
 from flask_cors import CORS
 import feedparser
 import asyncio
-from torrentp import TorrentDownloader as downloader
+import libtorrent as lt
+from ffmpeg import Progress
 from ffmpeg.asyncio import FFmpeg
 import urllib.parse
 import os
@@ -14,7 +15,7 @@ import bencodepy
 import hashlib
 import base64
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 from unidecode import unidecode
 
 app = Flask(__name__)
@@ -60,7 +61,7 @@ with open('config.json', 'r', encoding='utf-8') as f:
 
 if config['token'] == None:
     print('|')
-    print(f'| Authentificate with AniList: https://anilist.co/api/v2/oauth/authorize?client_id={config['anilist_cid']}&redirect_uri=http://{config['host']}:{config['port']}/api/auth&response_type=code')
+    print(f'| Authentificate with AniList: https://anilist.co/api/v2/oauth/authorize?client_id={config["anilist_cid"]}&redirect_uri=http://{config["host"]}:{config["port"]}/api/auth&response_type=code')
     print('|')
 
 class dbHandler:
@@ -163,7 +164,7 @@ async def getUID():
             'https://graphql.anilist.co',
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {config['token']['access_token']}',
+                'Authorization': f'Bearer {config["token"]["access_token"]}',
             },
             json = {'query': query}
         )
@@ -183,7 +184,7 @@ async def getWatching():
             'https://graphql.anilist.co',
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {config['token']['access_token']}',
+                'Authorization': f'Bearer {config["token"]["access_token"]}',
             },
             json = {'query': query}
         )
@@ -312,9 +313,18 @@ async def download(title, episode, magnet):
     processing = True
     inp, out, exists, magnet, dl, sub = await preCheck(title, episode, magnet)
     if not exists:
-        db.update(title, episode, 'status', 'downloading')
-        torrent = downloader(magnet, './mkv/', stop_after_download=True)
-        await torrent.start_download()
+        db.update(title, episode, 'status', 'Downloading')
+        session = lt.session()
+        params = {
+            'save_path': './mkv/',
+            'storage_mode': lt.storage_mode_t.storage_mode_sparse,
+        }
+        torrent = lt.add_magnet_uri(session, magnet, params)
+        status = torrent.status()
+        while not status.is_seeding:
+            status = torrent.status()
+            db.update(title, episode, 'status', f'Downloading {round(status.progress * 100)}%')
+            await asyncio.sleep(1)
         os.rename(dl, inp)
     if not os.path.exists(sub):
         await patchSubtiles(inp, sub)
@@ -322,7 +332,7 @@ async def download(title, episode, magnet):
         db.update(title, episode, 'status', 'ready')
         db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
         return
-    db.update(title, episode, 'status', 'encoding')
+    db.update(title, episode, 'status', 'Encoding')
     ffprobe = FFmpeg(executable="ffprobe").input(
         inp,
         print_format="json",
@@ -330,21 +340,32 @@ async def download(title, episode, magnet):
         select_streams='a'
     )
     streams = json.loads(await ffprobe.execute())['streams']
+    tags = streams[0]['tags']
+    for key in tags:
+        if 'DURATION' in key:
+            time = datetime.strptime(tags[key][:8], "%H:%M:%S")
+            duration = timedelta(hours=time.hour, minutes=time.minute, seconds=time.second).total_seconds()
+            break
     if len(streams) > 1:
         mappings = ['0:v:0', '0:a:1']
     else:
         mappings = ['0:v:0', '0:a:0']
+    fsub = shlex.quote(sub.replace(':', '\\:'))
     ffmpeg = (
         FFmpeg()
         .input(inp)
         .output(
             out,
-            vf=f"subtitles={shlex.quote(sub.replace(':', '\\:'))}",
+            vf=f"subtitles={fsub}",
             movflags="+faststart",
             map=mappings,
             **config['encoding']
         )
     )
+    @ffmpeg.on('progress')
+    async def _(progress: Progress):
+        db.update(title, episode, 'status', f'Encoding {round(int(progress.time.total_seconds()) / int(duration) * 100)}%')
+        await asyncio.sleep(1)
     await ffmpeg.execute()
     os.remove(inp)
     os.remove(sub)
@@ -424,8 +445,8 @@ async def check(partial = False):
                         if item['episode'] > watchlist[index]['progress']:
                             if source['per_season_episodes']:
                                 entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
-                                if f'{str(item['episode']).zfill(5)}{entry['title']}' not in queueTitles:
-                                    queueTitles.append(f'{str(item['episode']).zfill(5)}{entry['title']}')
+                                if f'{str(item["episode"]).zfill(5)}{entry["title"]}' not in queueTitles:
+                                    queueTitles.append(f'{str(item["episode"]).zfill(5)}{entry["title"]}')
                                     queue.append(entry)
                                     if not db.exists(title, item['episode']):
                                             db.add(title, item['episode'], watchlist[index]['cover'])
@@ -452,8 +473,8 @@ async def check(partial = False):
                                     episode = item['episode'] - episodes
                                     if episode > watchlist[index]['progress']:
                                         entry = {'title': title, 'episode': episode, 'magnet': item['link']}
-                                        if f'{str(episode).zfill(5)}{entry['title']}' not in queueTitles:
-                                            queueTitles.append(f'{str(episode).zfill(5)}{entry['title']}')
+                                        if f'{str(episode).zfill(5)}{entry["title"]}' not in queueTitles:
+                                            queueTitles.append(f'{str(episode).zfill(5)}{entry["title"]}')
                                             queue.append(entry)
                                             if not db.exists(title, episode):
                                                 db.add(title, episode, watchlist[index]['cover'])

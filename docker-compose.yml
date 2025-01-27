@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  anivt:
+    image: anivt
+    container_name: anivt
+    ports:
+      - 5000:7980
+    volumes:
+      - ./config.json:/anivt/config.json
+      - ./mkv:/anivt/mkv
+      - ./public/mp4:/anivt/public/mp4
+      - ./subtitles:/anivt/subtitles
+      - ./public/db.json:/anivt/public/db.json
