@@ -1,0 +1,98 @@
+@import url(https://fonts.bunny.net/css?family=outfit:400,600,700|space-grotesk:600);
+
+* {
+    font-family: 'Outfit', sans-serif;
+}
+body {
+    background-color: #101010;
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+a {
+    text-decoration: none;
+}
+
+#auth {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    border: 1px solid #404040;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#aniListIcon {
+    height: 16px;
+    width: fit-content;
+    margin-right: 5px;
+}
+#nav {
+    width: 100%;
+    padding: 30px 30px 20px 30px;
+}
+#logo {
+    cursor: pointer;
+}
+#logoBox {
+    display: flex;
+}
+#inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.button {
+    padding: 10px 15px;
+    border: 1px solid #404040;
+    background-color: #252525;
+    border-radius: 10px;
+    display: flex;
+    font-weight: 700;
+    color: #d9d9d9;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-evenly;
+    text-align: center;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.input {
+    padding: 10px;
+    border: 1px solid #404040;
+    background-color: #252525;
+    border-radius: 10px;
+    display: flex;
+    font-weight: 700;
+    color: #d9d9d9;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    font-size: 1rem;
+    outline: none;
+}
+.header {
+    font-size: 1.25rem;
+    margin: 10px 0 20px 0;
+}
+.separator {
+    height: 1px;
+    width: 100%;
+    background-color: #404040;
+    margin: 10px 0;
+}
+.message {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #7d7dff;
+}
+.error {
+    color: #ff7d7d;
+}

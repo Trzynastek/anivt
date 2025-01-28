@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, session
 from flask_cors import CORS
 import feedparser
 import asyncio
@@ -17,19 +17,38 @@ import base64
 import threading
 from datetime import datetime, timedelta
 from unidecode import unidecode
-
-app = Flask(__name__)
-CORS(app)
+import time
 
 queue = []
 queueTitles = []
 processing = False
 past = {}
 schedule = []
+whitelist = [
+    'auth.html',
+    'auth.css',
+    'auth.js',
+    'assets/logo.svg',
+    'assets/icon.svg',
+    'cookies.js'
+]
+internalError = '''
+    <head>
+        <link rel="stylesheet" href="/auth.css">
+        <link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon">
+        <title>Aniv/d</title>
+    </head>
+    <body>
+        <div id="auth">
+            <p class="message error">Internal error.</p>
+        </div>
+    </body>
+'''
 
 if not os.path.exists('config.json'):
     with open('config.json', 'w') as f:
         default = {
+            "secret": "SecureSecretKey",
             "host": "0.0.0.0",
             "port": "7980",
             "cleanup_interval": 3600,
@@ -51,18 +70,20 @@ if not os.path.exists('config.json'):
                 "Outline": 4,
                 "MarginV": 60
             },
-            "anilist_cid": None,
-            "anilist_secret": None,
-            "token": None
+            "anilist": {
+                "redirect_base": "http://127.0.0.1:7980",
+                "cid": None,
+                "secret": None,
+                "token": None
+            }
         }
         json.dump(default, f, indent=4) 
 with open('config.json', 'r', encoding='utf-8') as f:
     config = json.load(f)
 
-if config['token'] == None:
-    print('|')
-    print(f'| Authentificate with AniList: https://anilist.co/api/v2/oauth/authorize?client_id={config["anilist_cid"]}&redirect_uri=http://{config["host"]}:{config["port"]}/api/auth&response_type=code')
-    print('|')
+app = Flask(__name__)
+app.secret_key = config['secret']
+CORS(app)
 
 class dbHandler:
     def __init__(self):
@@ -115,13 +136,22 @@ class dbHandler:
     def dump(self):
         return self.db['videos']
 
-@app.route('/')
-@app.route('/<path:file>')
-def serve(file='index.html'):
-    return send_from_directory('./public', file)
+def checkToken(request):
+    if not 'token' in request.cookies:
+        return send_from_directory('./public', 'auth.html'), 403
+    token = request.cookies.get('token')
+    if not 'token_type' in config['anilist']['token']:
+        return internalError, 500
+    if token != config['anilist']['token']['access_token'][:40]:
+        return send_from_directory('./public', 'auth.html'), 403
+    session['authenticated'] = True
+    return 'ok'
 
 @app.route('/api/auth', methods=['GET'])
 def apiAuth():
+    global authPause
+    if not 'token_type' in config['anilist']['token']:
+        return internalError
     code = request.args.get('code')
     res = requests.post(
         'https://anilist.co/api/v2/oauth/token',
@@ -131,19 +161,62 @@ def apiAuth():
         },
         json = {
             'grant_type': 'authorization_code',
-            'client_id': config['anilist_cid'],
-            'client_secret': config['anilist_secret'],
-            'redirect_uri': f"http://{config['host']}:{config['port']}/api/auth",
+            'client_id': config['anilist']['cid'],
+            'client_secret': config['anilist']['secret'],
+            'redirect_uri': f'{config["anilist"]["redirect_base"]}/api/auth',
             'code': code
         }
     )
-    config['token'] = res.json()
+    token = res.json()
+    if 'error' in token:
+        return f'''
+            <head>
+                <link rel="stylesheet" href="/auth.css">
+                <link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon">
+                <title>Aniv/d</title>
+            </head>
+            <body>
+                <div id="auth">
+                    <p class="message error">Internal error.</p>
+                    <p class="message">Redirecting...</p>
+                </div>
+                <script>
+                    setTimeout(function () {{location.href = "/"}}, 2000)
+                </script>
+            </body>
+        ''', 200
+    config['anilist']['token'] = token
+    short = token['access_token'][:40]
     with open('config.json', 'w', encoding='utf-8') as f:
         json.dump(config, f, indent=4)
-    return '<h1>Authenfificated</h1><h2>You can now close this tab.</h2>', 200
+    authPause = False
+    session['authenticated'] = True
+    return f'''
+        <head>
+            <link rel="stylesheet" href="/auth.css">
+            <link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon">
+            <title>Aniv/d</title>
+        </head>
+        <body>
+            <div id="auth">
+                <p class="message">Redirecting...</p>
+            </div>
+            <script src="/cookies.js"></script>
+            <script>
+                setCookie('token', "{short}", 30)
+                location.href = "/"
+            </script>
+        </body>
+    '''
+
+@app.route('/api/redirect', methods=['GET'])
+def sendRedirect():
+    return {"cid": config['anilist']['cid'], "redirect": config['anilist']['redirect_base']}
 
 @app.route('/api/watched', methods=['POST'])
 def markWatched():
+    if not session.get('authenticated'):
+        return send_from_directory('./public', 'auth.html'), 403
     title = request.json['title']
     episode = request.json['episode']
     if db.exists(title, episode):
@@ -152,9 +225,27 @@ def markWatched():
     return '', 200
 
 @app.route('/api/schedule', methods=['GET'])
-async def getSchedule():
+def getSchedule():
+    if not session.get('authenticated'):
+        return send_from_directory('./public', 'auth.html'), 403
     global schedule
-    return schedule, 200
+    return schedule
+
+@app.route('/')
+def homepage():
+    if not session.get('authenticated'):
+        action = checkToken(request)
+        if action != 'ok':
+            return action
+    return send_from_directory('./public', 'index.html')
+
+@app.route('/<path:file>')
+def serve(file):
+    if not session.get('authenticated'):
+        if file in whitelist:
+            return send_from_directory('./public', file)
+        return send_from_directory('./public', 'auth.html'), 403
+    return send_from_directory('./public', file)
 
 async def getUID():
     query = '{ Viewer { id } }'
@@ -164,7 +255,7 @@ async def getUID():
             'https://graphql.anilist.co',
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {config["token"]["access_token"]}',
+                'Authorization': f'Bearer {config["anilist"]["token"]["access_token"]}',
             },
             json = {'query': query}
         )
@@ -184,7 +275,7 @@ async def getWatching():
             'https://graphql.anilist.co',
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {config["token"]["access_token"]}',
+                'Authorization': f'Bearer {config["anilist"]["token"]["access_token"]}',
             },
             json = {'query': query}
         )
@@ -328,12 +419,13 @@ async def download(title, episode, magnet):
         session.remove_torrent(torrent)
         session.pause()
         os.rename(dl, inp)
-    if not os.path.exists(sub):
-        await patchSubtiles(inp, sub)
     if os.path.exists(out):
         db.update(title, episode, 'status', 'ready')
         db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
+        processing = False
         return
+    if not os.path.exists(sub):
+        await patchSubtiles(inp, sub)
     db.update(title, episode, 'status', 'Encoding')
     ffprobe = FFmpeg(executable="ffprobe").input(
         inp,
@@ -480,7 +572,7 @@ async def check(partial = False):
                                             queue.append(entry)
                                             if not db.exists(title, episode):
                                                 db.add(title, episode, watchlist[index]['cover'])
-    for item in queue:
+    for item in queue[:]:
         if db.exists(item['title'], item['episode']):
             if db.read(item['title'], item['episode'], 'status') != 'ready':
                 while processing:
@@ -526,7 +618,19 @@ async def watcher():
 def server():
     app.run(port=config['port'],host=config['host'])
 
+authPause = False
+
+if config['anilist']['token'] == None:
+    print('|')
+    print(f'| Authentificate with AniList: https://anilist.co/api/v2/oauth/authorize?client_id={config["anilist"]["cid"]}&redirect_uri={config["anilist"]["redirect_base"]}/api/auth&response_type=code')
+    print('|')
+    authPause = True
+
 db = dbHandler()
 webserver = threading.Thread(target=server)
 webserver.start()
+
+while authPause:
+    time.sleep(1)
+
 asyncio.run(watcher())
