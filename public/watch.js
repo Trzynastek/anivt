@@ -2,8 +2,15 @@ player = document.getElementById('player')
 playerContainer = document.getElementById('playerContainer')
 buffers = document.getElementById('buffers')
 seekbar = document.getElementById('seekbar')
+pfp = document.getElementById('pfp')
 
 params = urlParams = new URLSearchParams(window.location.search)
+
+fetch('db.json')
+    .then((res) => res.json())
+    .then((data) => {
+        pfp.src = data.pfp
+    })
 
 player.src = params.get('file')
 marked = false

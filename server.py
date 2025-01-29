@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory, session
+from flask import Flask, request, send_from_directory, session, make_response, redirect
 from flask_cors import CORS
 import feedparser
 import asyncio
@@ -29,8 +29,7 @@ whitelist = [
     'auth.css',
     'auth.js',
     'assets/logo.svg',
-    'assets/icon.svg',
-    'cookies.js'
+    'assets/icon.svg'
 ]
 internalError = '''
     <head>
@@ -83,6 +82,8 @@ with open('config.json', 'r', encoding='utf-8') as f:
 
 app = Flask(__name__)
 app.secret_key = config['secret']
+app.config["SESSION_PERMANENT"] = True
+app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(days=30)
 CORS(app)
 
 class dbHandler:
@@ -94,7 +95,7 @@ class dbHandler:
     def ensureDb(self):
         if not os.path.exists(self.dbf):
             with open(self.dbf, 'w', encoding='utf-8') as f:
-                json.dump({'videos': {}}, f, indent=4)
+                json.dump({'videos': {}, 'pfp': None}, f, indent=4)
     
     def load(self):
         with open(self.dbf, 'r', encoding='utf-8') as f:
@@ -114,9 +115,10 @@ class dbHandler:
         del self.db['videos'][target]
         self.save()
     
-    def add(self, title, episode, cover):
+    def add(self, title, episode, cover, id):
         target = f'{str(episode).zfill(5)}{title}'
         self.db['videos'][target] = {
+            "id": id,
             "file": None,
             "episode": episode,
             "cover": cover,
@@ -146,6 +148,29 @@ def checkToken(request):
         return send_from_directory('./public', 'auth.html'), 403
     session['authenticated'] = True
     return 'ok'
+
+async def getPfp():
+    if db.db['pfp'] == None:
+        uid = await getUID()
+        query = f'{{ User(id: {uid}) {{ avatar {{ medium }} }} }}'
+        res = requests.post(
+            'https://graphql.anilist.co',
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {config["anilist"]["token"]["access_token"]}',
+            },
+            json = {'query': query}
+        )
+        pfp = res.json()['data']['User']['avatar']['medium']
+        db.db['pfp'] = pfp
+        db.save()
+
+@app.route('/api/logout')
+def logout():
+    session.clear()
+    response = make_response(redirect("/"))
+    response.set_cookie("session", "", expires=0)
+    return response
 
 @app.route('/api/auth', methods=['GET'])
 def apiAuth():
@@ -186,10 +211,11 @@ def apiAuth():
             </body>
         ''', 200
     config['anilist']['token'] = token
-    short = token['access_token'][:40]
     with open('config.json', 'w', encoding='utf-8') as f:
         json.dump(config, f, indent=4)
     authPause = False
+    asyncio.run(getPfp())
+    session.permanent = True
     session['authenticated'] = True
     return f'''
         <head>
@@ -201,9 +227,7 @@ def apiAuth():
             <div id="auth">
                 <p class="message">Redirecting...</p>
             </div>
-            <script src="/cookies.js"></script>
             <script>
-                setCookie('token', "{short}", 30)
                 location.href = "/"
             </script>
         </body>
@@ -222,6 +246,16 @@ def markWatched():
     if db.exists(title, episode):
         now = str(datetime.now())
         db.update(title, episode, 'watched', now)
+        id = db.read(title, episode, 'id')
+        query = f'mutation {{ SaveMediaListEntry(mediaId: {id}, progress: {episode}) {{ id progress }} }}'
+        res = requests.post(
+            'https://graphql.anilist.co',
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {config["anilist"]["token"]["access_token"]}',
+            },
+            json = {'query': query}
+        )
     return '', 200
 
 @app.route('/api/schedule', methods=['GET'])
@@ -268,7 +302,7 @@ async def getUID():
 
 async def getWatching():
     uid = await getUID()
-    query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt }} }} }} coverImage {{ large }} episodes }} }} }} }} }}'
+    query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt }} }} }} coverImage {{ large }} episodes }} }} }} }} }}'
     success = False
     while not success:
         res = requests.post(
@@ -286,6 +320,7 @@ async def getWatching():
     data = res.json()
     data = data['data']['MediaListCollection']['lists'][3]['entries']
     data = [{
+        'id': item['media']['id'],
         'progress': item['progress'],
         'title': item['media']['title'],
         'episodes': item['media']['episodes'],
@@ -543,7 +578,7 @@ async def check(partial = False):
                                     queueTitles.append(f'{str(item["episode"]).zfill(5)}{entry["title"]}')
                                     queue.append(entry)
                                     if not db.exists(title, item['episode']):
-                                            db.add(title, item['episode'], watchlist[index]['cover'])
+                                            db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'])
                             else:
                                 query = f'{{ Page {{ media(search: "{title}", type: ANIME) {{ id title {{ romaji }} relations {{ nodes {{ episodes }} }} }} }} }}'
                                 res = requests.post(
@@ -571,7 +606,7 @@ async def check(partial = False):
                                             queueTitles.append(f'{str(episode).zfill(5)}{entry["title"]}')
                                             queue.append(entry)
                                             if not db.exists(title, episode):
-                                                db.add(title, episode, watchlist[index]['cover'])
+                                                db.add(title, episode, watchlist[index]['cover'], watchlist[index]['id'])
     for item in queue[:]:
         if db.exists(item['title'], item['episode']):
             if db.read(item['title'], item['episode'], 'status') != 'ready':

@@ -1,6 +1,7 @@
 elems = {
     videos: document.getElementById('videos'),
-    schedule: document.getElementById('schedule')
+    schedule: document.getElementById('schedule'),
+    pfp: document.getElementById('pfp')
 }
 
 tick = `<svg class="tick" width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4.5L3.73167 7.61701C4.08842 8.25915 4.9926 8.31036 5.41957 7.71261L9.5 2" stroke="black" stroke-width="3" stroke-linecap="round"/></svg> `
@@ -27,6 +28,7 @@ async function getDb() {
             `
             elems.videos.innerHTML += element
         })
+        elems.pfp.src = data.pfp
     })
 }
 

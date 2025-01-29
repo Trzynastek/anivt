@@ -2,6 +2,7 @@
 
 * {
     font-family: 'Outfit', sans-serif;
+    color: #d9d9d9;
 }
 body {
     background-color: #101010;
@@ -58,7 +59,7 @@ a:visited {
 
 #videos {
     flex-wrap: wrap;
-    overflow: scroll;
+    overflow-y: scroll;
     max-height: calc(100vh - 186px);
     padding: 10px 0;
     grid-area: 1 / 1 / 2 / 2;
@@ -67,6 +68,10 @@ a:visited {
     grid-template-rows: repeat(auto-fit, 325px);
     grid-gap: 10px;
     margin: 10px 0;
+    scrollbar-width: none;
+}
+#videos::-webkit-scrollbar {
+    display: none;
 }
 #player {
     width: 100%;
@@ -193,6 +198,9 @@ a:visited {
 #nav {
     width: 100%;
     padding: 30px 30px 20px 30px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
 }
 #logo {
     cursor: pointer;
@@ -210,6 +218,27 @@ a:visited {
     grid-area: 1 / 2 / 2 / 3;
     margin: 20px 0;
     height: fit-content;
+}
+#pfp {
+    height: 34px;
+    border-radius: 5px;
+}
+#account {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+#logout {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px;
+    background-color: #000000b0;
+    opacity: 0;
+    transition: opacity 200ms;
+}
+#logout:hover {
+    opacity: 1;
 }
 
 .tick {
