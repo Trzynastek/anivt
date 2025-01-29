@@ -16,21 +16,22 @@ function mainForm() {
              </svg>
              AniList
          </a>
-         <button class="button" id="guest" onclick="guestForm()">
-             Guest
-         </button>
     `
+    //      <button class="button" id="guest" onclick="guestForm()">
+    //          Guest
+    //      </button>
+    // `
 }
 
-function guestForm() {
-    inputs.innerHTML = `
-        <button class="button" id="guest" onclick="mainForm()">
-             Back
-        </button>
-        <div class="separator"></div>
-        <input class="input" type="password" id="password" placeholder="Guest password">
-        <button class="button" id="guest" onclick="guestLogin()">
-             Login
-        </button>
-    `
-}
+// function guestForm() {
+//     inputs.innerHTML = `
+//         <button class="button" id="guest" onclick="mainForm()">
+//              Back
+//         </button>
+//         <div class="separator"></div>
+//         <input class="input" type="password" id="password" placeholder="Guest password">
+//         <button class="button" id="guest" onclick="guestLogin()">
+//              Login
+//         </button>
+//     `
+// }

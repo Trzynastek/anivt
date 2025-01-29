@@ -1,6 +1,6 @@
 elems = {
     videos: document.getElementById('videos'),
-    schedule: document.getElementById('schedule'),
+    schedule: document.getElementById('entries'),
     pfp: document.getElementById('pfp')
 }
 
@@ -33,7 +33,7 @@ async function getDb() {
 }
 
 async function getSchedule() {
-    elems.schedule.innerHTML = '<p class="header">Schedule</p>'
+    elems.schedule.innerHTML = ''
     res = await fetch(`${window.location.origin}/api/schedule`)
     list = await res.json()
     list.sort((a, b) => a.airing - b.airing).forEach((entry) => {
@@ -49,7 +49,23 @@ async function getSchedule() {
                 <p class="title">${title.replaceAll('<', '&lt;')}</p>
             </div>
         `
+        elems.schedule.innerHTML += `
+            <div class="scheduleEntry${(entry.airing * 1000 < Date.now())? ' past' : ''}">
+                <div class="row">
+                    <p class="time">${time}</p>
+                    <p class="episode">EP ${entry.episode}</p>
+                </div>    
+                <p class="title">${title.replaceAll('<', '&lt;')}</p>
+            </div>
+        `
     })
+}
+
+function logout() {
+    choice = confirm('Logout?')
+    if (choice) {
+        location.href = '/api/logout'
+    }
 }
 
 getDb()

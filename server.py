@@ -82,8 +82,10 @@ with open('config.json', 'r', encoding='utf-8') as f:
 
 app = Flask(__name__)
 app.secret_key = config['secret']
-app.config["SESSION_PERMANENT"] = True
-app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(days=30)
+app.config["SESSION_PERMANENT"] = False
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_NAME'] = "sessionToken"
 CORS(app)
 
 class dbHandler:
@@ -137,17 +139,6 @@ class dbHandler:
     
     def dump(self):
         return self.db['videos']
-
-def checkToken(request):
-    if not 'token' in request.cookies:
-        return send_from_directory('./public', 'auth.html'), 403
-    token = request.cookies.get('token')
-    if not 'token_type' in config['anilist']['token']:
-        return internalError, 500
-    if token != config['anilist']['token']['access_token'][:40]:
-        return send_from_directory('./public', 'auth.html'), 403
-    session['authenticated'] = True
-    return 'ok'
 
 async def getPfp():
     if db.db['pfp'] == None:
@@ -268,9 +259,7 @@ def getSchedule():
 @app.route('/')
 def homepage():
     if not session.get('authenticated'):
-        action = checkToken(request)
-        if action != 'ok':
-            return action
+        return send_from_directory('./public', 'auth.html'), 403
     return send_from_directory('./public', 'index.html')
 
 @app.route('/<path:file>')
@@ -439,7 +428,7 @@ async def download(title, episode, magnet):
     processing = True
     inp, out, exists, magnet, dl, sub = await preCheck(title, episode, magnet)
     if not exists:
-        db.update(title, episode, 'status', 'Downloading')
+        db.update(title, episode, 'status', 'downloading')
         session = lt.session()
         params = {
             'save_path': './mkv/',
@@ -449,7 +438,7 @@ async def download(title, episode, magnet):
         status = torrent.status()
         while not status.is_seeding:
             status = torrent.status()
-            db.update(title, episode, 'status', f'Downloading {round(status.progress * 100)}%')
+            db.update(title, episode, 'status', f'downloading {round(status.progress * 100)}%')
             await asyncio.sleep(1)
         session.remove_torrent(torrent)
         session.pause()
@@ -461,7 +450,7 @@ async def download(title, episode, magnet):
         return
     if not os.path.exists(sub):
         await patchSubtiles(inp, sub)
-    db.update(title, episode, 'status', 'Encoding')
+    db.update(title, episode, 'status', 'encoding')
     ffprobe = FFmpeg(executable="ffprobe").input(
         inp,
         print_format="json",
@@ -493,7 +482,7 @@ async def download(title, episode, magnet):
     )
     @ffmpeg.on('progress')
     async def _(progress: Progress):
-        db.update(title, episode, 'status', f'Encoding {round(int(progress.time.total_seconds()) / int(duration) * 100)}%')
+        db.update(title, episode, 'status', f'encoding {round(int(progress.time.total_seconds()) / int(duration) * 100)}%')
         await asyncio.sleep(1)
     await ffmpeg.execute()
     os.remove(inp)

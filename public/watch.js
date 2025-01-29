@@ -118,6 +118,13 @@ function updateSeek(event) {
     time()
 }
 
+function logout() {
+    choice = confirm('Logout?')
+    if (choice) {
+        location.href = '/api/logout'
+    }
+}
+
 document.addEventListener("keydown", (event) => {
     switch (event.key) {
         case " ":
