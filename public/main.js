@@ -49,15 +49,6 @@ async function getSchedule() {
                 <p class="title">${title.replaceAll('<', '&lt;')}</p>
             </div>
         `
-        elems.schedule.innerHTML += `
-            <div class="scheduleEntry${(entry.airing * 1000 < Date.now())? ' past' : ''}">
-                <div class="row">
-                    <p class="time">${time}</p>
-                    <p class="episode">EP ${entry.episode}</p>
-                </div>    
-                <p class="title">${title.replaceAll('<', '&lt;')}</p>
-            </div>
-        `
     })
 }
 
