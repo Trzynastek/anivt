@@ -140,6 +140,10 @@ a:visited {
 #controls svg:hover * {
     stroke: #7d7dff;
 }
+#controls .skip:hover * {
+    fill: #7d7dff;
+    stroke: none;
+}
 #play:hover * {
     fill: #7d7dff;
 }
