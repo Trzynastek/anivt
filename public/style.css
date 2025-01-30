@@ -203,6 +203,10 @@ a:visited {
 #entries {
     height: calc(100% - 60px);
     overflow-y: scroll;
+    scrollbar-width: none;
+}
+#entries::-webkit-scrollbar {
+    display: none;
 }
 #pfp {
     height: 34px;
