@@ -28,7 +28,6 @@ async function getDb() {
             `
             elems.videos.innerHTML += element
         })
-        elems.pfp.src = data.pfp
     })
 }
 
@@ -58,6 +57,12 @@ function logout() {
         location.href = '/api/logout'
     }
 }
+
+fetch('db.json')
+    .then((res) => res.json())
+    .then((data) => {
+        elems.pfp.src = data.pfp
+    })
 
 getDb()
 getSchedule()
