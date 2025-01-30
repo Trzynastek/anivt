@@ -18,6 +18,7 @@ import threading
 from datetime import datetime, timedelta
 from unidecode import unidecode
 import time
+from waitress import serve
 
 queue = []
 queueTitles = []
@@ -263,7 +264,7 @@ def homepage():
     return send_from_directory('./public', 'index.html')
 
 @app.route('/<path:file>')
-def serve(file):
+def serveFile(file):
     if not session.get('authenticated'):
         if file in whitelist:
             return send_from_directory('./public', file)
@@ -640,7 +641,7 @@ async def watcher():
         await asyncio.sleep(1)
 
 def server():
-    app.run(port=config['port'],host=config['host'])
+    serve(app, host=config['host'], port=config['port'])
 
 authPause = False
 

@@ -16,7 +16,8 @@ RUN pip install --no-cache-dir \
     libtorrent \
     requests \
     unidecode \
-    bencodepy
+    bencodepy \
+    waitress
 
 WORKDIR /anivt/
 
