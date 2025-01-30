@@ -17,7 +17,8 @@ RUN pip install --no-cache-dir \
     requests \
     unidecode \
     bencodepy \
-    waitress
+    waitress \
+    "pyjwt[crypto]"
 
 WORKDIR /anivt/
 

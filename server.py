@@ -19,6 +19,7 @@ from datetime import datetime, timedelta
 from unidecode import unidecode
 import time
 from waitress import serve
+import jwt
 
 queue = []
 queueTitles = []
@@ -167,8 +168,6 @@ def logout():
 @app.route('/api/auth', methods=['GET'])
 def apiAuth():
     global authPause
-    if not 'token_type' in config['anilist']['token']:
-        return internalError
     code = request.args.get('code')
     res = requests.post(
         'https://anilist.co/api/v2/oauth/token',
@@ -202,13 +201,31 @@ def apiAuth():
                 </script>
             </body>
         ''', 200
-    config['anilist']['token'] = token
-    with open('config.json', 'w', encoding='utf-8') as f:
-        json.dump(config, f, indent=4)
-    authPause = False
-    asyncio.run(getPfp())
-    session.permanent = True
-    session['authenticated'] = True
+    if config['anilist']['token'] == None:
+        config['anilist']['token'] = token
+        with open('config.json', 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=4)
+    serverUID = jwt.decode(config['anilist']['token']['access_token'], options={"verify_signature": False})['sub']
+    requestUID = jwt.decode(token['access_token'], options={"verify_signature": False})['sub']
+    if serverUID == requestUID:
+        authPause = False
+        asyncio.run(getPfp())
+        session.permanent = True
+        session['authenticated'] = True
+    else:
+        return f'''
+            <head>
+                <link rel="stylesheet" href="/auth.css">
+                <link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon">
+                <title>Aniv/d</title>
+            </head>
+            <body>
+                <div id="auth">
+                    <p class="message error">This user is not permited.</p>
+                    <p>If this is your instance, try removing AniList token from config.</p>
+                </div>
+            </body>
+        '''
     return f'''
         <head>
             <link rel="stylesheet" href="/auth.css">
@@ -272,23 +289,8 @@ def serveFile(file):
     return send_from_directory('./public', file)
 
 async def getUID():
-    query = '{ Viewer { id } }'
-    success = False
-    while not success:
-        res = requests.post(
-            'https://graphql.anilist.co',
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {config["anilist"]["token"]["access_token"]}',
-            },
-            json = {'query': query}
-        )
-        if res.status_code == 200:
-            success = True
-        else:
-            await asyncio.sleep(10)
-    data = res.json()
-    return data['data']['Viewer']['id']
+    data = jwt.decode(config['anilist']['token']['access_token'], options={"verify_signature": False})
+    return data['sub']
 
 async def getWatching():
     uid = await getUID()
@@ -646,9 +648,6 @@ def server():
 authPause = False
 
 if config['anilist']['token'] == None:
-    print('|')
-    print(f'| Authentificate with AniList: https://anilist.co/api/v2/oauth/authorize?client_id={config["anilist"]["cid"]}&redirect_uri={config["anilist"]["redirect_base"]}/api/auth&response_type=code')
-    print('|')
     authPause = True
 
 db = dbHandler()

@@ -23,8 +23,8 @@
       },
       "anilist": {
             "redirect_base": "http://127.0.0.1:7980",
-            "cid": None,
-            "secret": None,
-            "token": None
+            "cid": null,
+            "secret": null,
+            "token": null
       }
 }
