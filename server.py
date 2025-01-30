@@ -37,7 +37,7 @@ internalError = '''
     <head>
         <link rel="stylesheet" href="/auth.css">
         <link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon">
-        <title>Aniv/d</title>
+        <title>Aniv/t</title>
     </head>
     <body>
         <div id="auth">
@@ -189,7 +189,7 @@ def apiAuth():
             <head>
                 <link rel="stylesheet" href="/auth.css">
                 <link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon">
-                <title>Aniv/d</title>
+                <title>Aniv/t</title>
             </head>
             <body>
                 <div id="auth">
@@ -217,7 +217,7 @@ def apiAuth():
             <head>
                 <link rel="stylesheet" href="/auth.css">
                 <link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon">
-                <title>Aniv/d</title>
+                <title>Aniv/t</title>
             </head>
             <body>
                 <div id="auth">
@@ -230,7 +230,7 @@ def apiAuth():
         <head>
             <link rel="stylesheet" href="/auth.css">
             <link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon">
-            <title>Aniv/d</title>
+            <title>Aniv/t</title>
         </head>
         <body>
             <div id="auth">
