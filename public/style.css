@@ -54,7 +54,7 @@ a:visited {
     height: fit-content;
     box-sizing: border-box;
     grid-area: 1 / 1 / 2 / 3;
-    margin-top: 5px;
+    margin-top: 10px;
 }
 #playerContainer:fullscreen #player {
     border: none;
@@ -85,7 +85,7 @@ a:visited {
 }
 #playerContainer:fullscreen #controls {
     transform: translateY(90px);
-    transition: transform 200ms 3000ms ease;
+    transition: transform 200ms 1000ms ease;
 }
 #playerContainer:fullscreen #controlsbox:hover #controls,
 #playerContainer:fullscreen.showControls #controls {
@@ -133,12 +133,15 @@ a:visited {
     height: 4px;
     padding: 10px 0;
     margin: 0 10px;
+    max-width: 100%;
+    position: relative;
 }
 #seekBg {
     width: 100%;
     height: 4px;
     background-color: #757575;
     border-radius: 2px;
+    max-width: 100%;
 }
 #progress {
     background-color: #7d7dff;
@@ -148,9 +151,11 @@ a:visited {
     width: 4px;
     position: absolute;
     z-index: 10;
+    max-width: 100%;
 }
 #buffers {
     position: relative;
+    max-width: 100%;
 }
 #time {
     background-color: #d9d9d9;
@@ -232,6 +237,33 @@ a:visited {
 #logout:hover {
     opacity: 1;
 }
+#fullscreenControls {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+}
+#fsSkipBW {
+    height: 100%;
+    width: 30%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+#fsSkipFW {
+    height: 100%;
+    width: 30%;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+#fsPlayPause {
+    width: 100%;
+    height: 100%;
+}
+#filler {
+    display: none;
+}
 
 .tick {
     margin-right: 4px;
@@ -308,7 +340,6 @@ a:visited {
 }
 .card .title {
     font-size: 1.25rem;
-    width: 210px;
     text-overflow: ellipsis;
     overflow: hidden;
     display: -webkit-box;
@@ -372,24 +403,66 @@ a:visited {
 .row {
     display: flex;
 }
+.touch {
+    display: none;
+}
+
+@media (any-pointer: coarse) {
+    #playerContainer:fullscreen #controls {
+        width: calc(100% - 40px);
+    }
+    #watermark {
+        top: min(5%, 30px);
+        height: 24px;
+    }
+
+    .touch {
+        display: block;
+    }
+}
 
 @media screen and (max-width: 630px) {
     main {
         grid-template-columns: auto;
         grid-template-rows: repeat(2, auto);
+        margin: 74px 10px 10px 10px;
     }
 
     #schedule {
-        max-width: calc(100vw - 60px);
+        max-width: calc(100vw - 20px);
     }
     #videos {
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: left;
         row-gap: 0;
+    }
+    #seekbar {
+        position: absolute;
+        top: 0px;
+        margin: 0;
+        width: calc(100% - 30px);
+    }
+    #controls {
+        padding-top: 20px;
+        justify-content: space-evenly;
+    }
+    #filler {
+        display: block;
+        margin: 10px 0;
+        aspect-ratio: 46 / 65;
+        flex: 1 1 45%;
+        height: auto;
     }
 
     .card {
         margin: 10px 0;
+        aspect-ratio: 46 / 65;
+        flex: 1 1 45%;
+        height: auto;
+    }
+    .labels {
+        flex-wrap: wrap;
+        row-gap: 10px;
     }
 }

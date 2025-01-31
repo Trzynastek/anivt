@@ -21,7 +21,12 @@
 		</div>
 		<main>
 			<div id="playerContainer" class="showControls">
-				<video id="player" onloadeddata="time(this.duration)" onclick="playpause(true)"></video>
+				<video id="player" onloadeddata="time(this.duration)"></video>
+                <div id="fullscreenControls">
+                    <button id="fsSkipBW" class="touch" ondblclick="skip(-5)"></button>
+                    <button id="fsPlayPause" onclick="playpause(true)"></button>
+                    <button id="fsSkipFW" class="touch" ondblclick="skip(5)"></button>
+                </div>
 				<div id="controlsbox">
 					<div id="controls">
 						<button onclick="playpause()">

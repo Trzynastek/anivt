@@ -28,6 +28,10 @@ async function getDb() {
             `
             elems.videos.innerHTML += element
         })
+        children = elems.videos.children.length
+        if (children % 2 == 1) {
+            elems.videos.innerHTML += '<div id="filler"></div>'
+        }
     })
 }
 
@@ -66,4 +70,4 @@ fetch('db.json')
 
 getDb()
 getSchedule()
-setInterval(getDb, 10000)
+// setInterval(getDb, 10000)
