@@ -640,6 +640,7 @@ async def watcher():
         cleanupCounter -= 1 
         fullCounter -= 1
         patialCounter -= 1
+        scheduleCounter -= 1
         await asyncio.sleep(1)
 
 def server():
