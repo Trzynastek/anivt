@@ -407,7 +407,7 @@ a:visited {
     display: none;
 }
 
-@media (any-pointer: coarse) {
+@media (pointer: coarse) {
     #playerContainer:fullscreen #controls {
         width: calc(100% - 40px);
     }
