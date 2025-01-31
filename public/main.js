@@ -70,4 +70,4 @@ fetch('db.json')
 
 getDb()
 getSchedule()
-// setInterval(getDb, 10000)
+setInterval(getDb, 10000)
