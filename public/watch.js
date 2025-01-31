@@ -129,17 +129,21 @@ document.addEventListener("keydown", (event) => {
     switch (event.key) {
         case " ":
         case "k":
+            event.preventDefault()
             playpause()
             break
         case "l":
         case "ArrowRight":
+            event.preventDefault()
             skip(10)
             break
         case "j":
         case "ArrowLeft":
+            event.preventDefault()
             skip(-10)
             break
         case "f":
+            event.preventDefault()
             fullscreen()
             break
     }
