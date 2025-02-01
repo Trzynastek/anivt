@@ -8,12 +8,12 @@
       "remove_after": 86400,
       "rss": [],
       "encoding": {
-          "vcodec": "libx264",
-          "pix_fmt": "yuv420p",
-          "crf": 18,
-          "preset": "veryfast",
-                "acodec": "aac",
-                "threads": 0
+            "vcodec": "libx264",
+            "pix_fmt": "yuv420p",
+            "crf": 18,
+            "preset": "veryfast",
+            "acodec": "aac",
+            "threads": 0
       },
       "subtitles": {
             "Fontname": "Roboto Medium",
