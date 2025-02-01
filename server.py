@@ -467,7 +467,7 @@ async def download(title, episode, magnet):
             time = datetime.strptime(tags[key][:8], "%H:%M:%S")
             duration = timedelta(hours=time.hour, minutes=time.minute, seconds=time.second).total_seconds()
             break
-    if len(streams) > 1:
+    if len(streams) >= 1:
         mappings = ['0:v:0', '0:a:1']
     else:
         mappings = ['0:v:0', '0:a:0']
