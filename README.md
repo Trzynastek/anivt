@@ -18,6 +18,10 @@
 > This project does not endorse or promote piracy in any form. \
 > It is the user's responsibility to ensure that they are in compliance with their local laws and regulations.
 
+> [!NOTE]
+> This project is in active developement and still in early aplha. \
+> At least until beta, all changes will be going straight to the main branch.
+
 ## What is Aniv/t?
 Aniv/t is a **media server** with a web interface, auto downloader, AniList sync and more.
 
