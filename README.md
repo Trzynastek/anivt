@@ -22,6 +22,11 @@
 > This project is in active developement and still in early aplha. \
 > At least until beta, all changes will be going straight to the main branch.
 
+> [!NOTE]
+> Re:Zero will not be detected due to an issue in the code. \
+> The fix is simple but might break some other anime. \
+> Fixed version will be available in the dev branch for now.
+
 ## What is Aniv/t?
 Aniv/t is a **media server** with a web interface, auto downloader, AniList sync and more.
 
