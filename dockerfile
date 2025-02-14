@@ -18,17 +18,17 @@ RUN pip install --no-cache-dir \
     unidecode \
     bencodepy \
     waitress \
-    "pyjwt[crypto]"
+    "pyjwt[crypto]" \
+    colorama
 
 WORKDIR /anivt/
 
 COPY public/ /anivt/public/
-COPY config.json /anivt/config.json
+COPY modules/ /anivt/modules/
 COPY server.py /anivt/server.py
 
-RUN mkdir -p /anivt/public/mp4 && \
-    mkdir /anivt/mkv && \
-    mkdir /anivt/subtitles
+RUN touch /anivt/config.json && \
+    touch /anivt/public/db.json
 
 EXPOSE 7980
 

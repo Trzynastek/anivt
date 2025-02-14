@@ -1,13 +1,29 @@
-version: '3.8'
 services:
-  anivt:
-    image: anivt
-    container_name: anivt
-    ports:
-      - 7980:7980
-    volumes:
-      - ./config.json:/anivt/config.json
-      - ./mkv:/anivt/mkv
-      - ./public/mp4:/anivt/public/mp4
-      - ./subtitles:/anivt/subtitles
-      - ./public/db.json:/anivt/public/db.json
+    init:
+        image: alpine
+        container_name: anivt-init
+        volumes:
+            - ./:/host/
+        command: sh -c "touch /host/config.json /host/public/db.json && sleep 3"
+        restart: no
+        healthcheck:
+            test: ['CMD-SHELL', 'test -f /host/config.json && test -f /host/public/db.json']
+            interval: 1s
+            retries: 10
+            start_period: 0s
+            timeout: 2s
+    anivt:
+        image: anivt
+        container_name: anivt
+        ports:
+            - 7980:7980
+        volumes:
+            - ./config.json:/anivt/config.json
+            - ./mkv:/anivt/mkv
+            - ./public/mp4:/anivt/public/mp4
+            - ./subtitles:/anivt/subtitles
+            - ./public/db.json:/anivt/public/db.json
+            - ./logs:/anivt/logs
+        depends_on:
+            init:
+                condition: service_healthy
