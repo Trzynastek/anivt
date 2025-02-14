@@ -19,7 +19,8 @@
 > It is the user's responsibility to ensure that they are in compliance with their local laws and regulations.
 
 > [!NOTE]
-> This project is in active developement and still in early aplha.
+> This project is in active developement and still in early alpha. \
+> At least until beta, all changes will be going straight to the main branch.
 
 > [!NOTE]
 > Sources without per season episodes might not work correctly.
