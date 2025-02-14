@@ -130,8 +130,8 @@ class instance:
                     eng = item['title'].get('english', None)
                     rom = item['title'].get('romaji', None)
                     
-                    eng = eng.split(':')[0].strip().lower() if eng else None
-                    rom = rom.split(':')[0].strip().lower() if rom else None
+                    eng = eng.strip().lower() if eng else None
+                    rom = rom.strip().lower() if rom else None
 
                     temp.append(eng)
                     temp.append(rom)
