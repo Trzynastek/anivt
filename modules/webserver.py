@@ -160,7 +160,7 @@ class instance:
                     json = {'query': query}
                 )
                 
-            var.console.infof(f'Marked {title} EP{episode} as watched')
+            var.console.info(f'Marked {title} EP{episode} as watched')
             return '', 200
 
         @self.app.route('/api/schedule', methods=['GET'])
