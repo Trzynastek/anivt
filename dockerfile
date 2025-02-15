@@ -27,9 +27,6 @@ COPY public/ /anivt/public/
 COPY modules/ /anivt/modules/
 COPY server.py /anivt/server.py
 
-RUN touch /anivt/config.json && \
-    touch /anivt/public/db.json
-
 EXPOSE 7980
 
 CMD ["python", "server.py"]

@@ -1,8 +1,8 @@
 import json, os
 
 class instance:
-    def __init__(self):
-        self.dbf = './public/db.json'
+    def __init__(self, configs):
+        self.dbf = f'{configs}/db.json'
         self.ensureDb()
         self.db = self.load()
 

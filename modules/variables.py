@@ -7,6 +7,12 @@ past = {}
 schedule = []
 authPause = False
 
+configs = os.getcwd() + '/configs'
+if not os.path.exists(configs):
+    os.mkdir(configs)
+
+configFile = f'{configs}/config.json'
+
 default = {
     "secret": "SecureSecretKey",
     "host": "0.0.0.0",
@@ -28,8 +34,8 @@ default = {
     },
     "subtitles": {
         "Fontname": "Roboto Medium",
-        "Fontsize": 32,
-        "Outline": 3,
+        "Fontsize": 36,
+        "Outline": 4,
         "MarginV": 40,
         "resX": 1280,
         "resY": 720
@@ -42,19 +48,19 @@ default = {
     }
 }
 
-if not os.path.exists('config.json'):
-    with open('config.json', 'w') as f:
+if not os.path.exists(configFile):
+    with open(configFile, 'w') as f:
         json.dump(default, f, indent=4) 
         
-with open('config.json', 'r', encoding='utf-8') as f:
+with open(configFile, 'r', encoding='utf-8') as f:
     char = f.read(1)
     if not char:
         config = default
-        with open('config.json', 'w') as f:
+        with open(configFile, 'w') as f:
             json.dump(default, f, indent=4) 
     else:
         f.seek(0)
         config = json.load(f)
 
-db = database.instance()
+db = database.instance(configs)
 console = console.instance(config['debug'], config['logs'])

@@ -169,6 +169,12 @@ class instance:
                 return send_from_directory('../public', 'auth.html'), 403
             return var.schedule
 
+        @self.app.route('/api/db', methods=['GET'])
+        def getDB():
+            if not session.get('authenticated'):
+                return send_from_directory('../public', 'auth.html'), 403
+            return send_from_directory(var.configs, 'db.json')
+
         @self.app.route('/')
         def homepage():
             if not session.get('authenticated'):

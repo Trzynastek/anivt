@@ -6,6 +6,11 @@ from ffmpeg.asyncio import FFmpeg
 from modules import variables as var
 
 class instance():
+    def __init__(self):
+        subPath = os.getcwd() + '/subtitles'
+        if not os.path.exists(subPath):
+            os.mkdir(subPath)
+
     # Stollen from https://github.com/DanySK/torrent2magnet 
     async def toMagnet(self, data):
         metadata = bencodepy.decode(data)

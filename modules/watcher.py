@@ -250,7 +250,7 @@ class instance:
                     })
 
     async def updateConfig(self):
-        with open('config.json', 'r', encoding='utf-8') as f:
+        with open(var.configFile, 'r', encoding='utf-8') as f:
             var.config = json.load(f)
         return
 
