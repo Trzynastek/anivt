@@ -158,10 +158,14 @@ class instance():
             'duration': duration
         })
 
-        if len(streams) > 1:
-            mappings = ['0:v:0', '0:a:1']
+        mappings = ['0:v:0']
+        for i, stream in enumerate(streams):
+            codec_name = stream.get('codec_name')
+            if codec_name == 'aac':
+                mappings.append(f'0:a:{i}')
+                break
         else:
-            mappings = ['0:v:0', '0:a:0']
+            mappings.append('0:a:0')
         
         var.console.debug('Mappings assigned', variables={
             'mappings': mappings
