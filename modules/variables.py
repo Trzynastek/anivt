@@ -24,6 +24,10 @@ default = {
     "debug": False,
     "logs": True,
     "rss": [],
+    "language": {
+        "audio": "jpn",
+        "subtitles": "eng"
+    },
     "encoding": {
         "vcodec": "libx264",
         "pix_fmt": "yuv420p",

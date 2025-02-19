@@ -25,10 +25,28 @@ class instance():
                 + '&xl=' + str(metadata[b'info'][b'length'])
 
     async def patchSubtiles(self, inp, sub):
+        ffprobe = FFmpeg(executable="ffprobe").input(
+            inp,
+            print_format="json",
+            show_streams=None,
+            select_streams='s'
+        )
+        streams = json.loads(await ffprobe.execute())['streams']
+
+        for i, stream in enumerate(streams):
+            if stream['tags']['language'] == var.config['language']['subtitles']:
+                mappings = f'0:s:{i}'
+                break
+        else:
+            mappings = '0:s:0'
+
         ffmpeg = (
             FFmpeg()
             .input(inp)
-            .output(sub)
+            .output(
+                sub,
+                map=mappings
+            )
         )
         await ffmpeg.execute()
 
@@ -161,7 +179,7 @@ class instance():
         mappings = ['0:v:0']
         for i, stream in enumerate(streams):
             codec_name = stream.get('codec_name')
-            if codec_name == 'aac':
+            if codec_name == 'aac' and stream['tags']['language'] == var.config['language']['audio']:
                 mappings.append(f'0:a:{i}')
                 break
         else:
