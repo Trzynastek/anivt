@@ -179,7 +179,7 @@ class instance():
         mappings = ['0:v:0']
         for i, stream in enumerate(streams):
             codec_name = stream.get('codec_name')
-            if codec_name == 'aac' and stream['tags']['language'] == var.config['language']['audio']:
+            if codec_name == var.config['encoding']['acodec'] and stream['tags']['language'] == var.config['language']['audio']:
                 mappings.append(f'0:a:{i}')
                 break
         else:

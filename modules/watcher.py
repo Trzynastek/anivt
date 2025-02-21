@@ -11,7 +11,7 @@ class instance:
     async def getWatching(self):
         uid = jwt.decode(var.config['anilist']['token']['access_token'], options={"verify_signature": False})['sub']
 
-        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt }} }} }} coverImage {{ large }} episodes }} }} }} }} }}'
+        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt }} }} }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
 
         success = False
         while not success:
@@ -41,7 +41,9 @@ class instance:
             'episodes': item['media']['episodes'],
             'cover': item['media']['coverImage']['large'],
             'synonyms': item['media']['synonyms'],
-            'airing': item['media']['airingSchedule']['edges']
+            'airing': item['media']['airingSchedule']['edges'],
+            'description': item['media']['description'],
+            'url': item['media']['siteUrl']
         } for item in data]
 
         return data
@@ -182,7 +184,7 @@ class instance:
                                         var.queueTitles.append(f'{str(item["episode"]).zfill(5)}{entry["title"]}')
                                         var.queue.append(entry)
                                         if not var.db.exists(title, item['episode']):
-                                            var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'])
+                                            var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'])
                                 else:
                                     query = f'{{ Page {{ media(search: "{title}", type: ANIME) {{ id title {{ romaji }} relations {{ nodes {{ episodes }} }} }} }} }}'
                                     res = requests.post(
@@ -212,7 +214,7 @@ class instance:
                                                 var.queueTitles.append(f'{str(episode).zfill(5)}{entry["title"]}')
                                                 var.queue.append(entry)
                                                 if not var.db.exists(title, episode):
-                                                    var.db.add(title, episode, watchlist[index]['cover'], watchlist[index]['id'])
+                                                    var.db.add(title, episode, watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'])
                                     var.console.debug('Episodes coversion', variables={
                                         'nodes': nodes,
                                         'total episodes': episodes,

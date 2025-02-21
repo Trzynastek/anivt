@@ -16,7 +16,7 @@ async function getDb() {
 				.reverse()
 				.forEach(([key, entry]) => {
 					element = `
-                <a class="card ${entry.status == 'ready' ? '' : 'disabled'}" href="/watch.html?file=${entry.file}&title=${key.slice(5)}&episode=${entry.episode}">
+                <a class="card ${entry.status == 'ready' ? '' : 'disabled'}" href="/watch.html?entry=${key}">
                     <img class="cover" src="${entry.cover}">
                     <div class="shadow"></div>
                     <div class="content">

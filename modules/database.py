@@ -35,7 +35,7 @@ class instance:
         del self.db['videos'][target]
         self.save()
     
-    def add(self, title, episode, cover, id):
+    def add(self, title, episode, cover, id, description, url):
         target = f'{str(episode).zfill(5)}{title}'
         self.db['videos'][target] = {
             "id": id,
@@ -43,7 +43,9 @@ class instance:
             "episode": episode,
             "cover": cover,
             "watched": None,
-            "status": "in queue"
+            "status": "in queue",
+            "description": description,
+            "url": url
         }
         self.save()
 
