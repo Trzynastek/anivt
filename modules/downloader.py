@@ -33,11 +33,12 @@ class instance():
         )
         streams = json.loads(await ffprobe.execute())['streams']
 
+        mappings = None
         for i, stream in enumerate(streams):
             if stream['tags']['language'] == var.config['language']['subtitles']:
                 mappings = f'0:s:{i}'
                 break
-        else:
+        if mappings == None:
             mappings = '0:s:0'
 
         ffmpeg = (
@@ -178,11 +179,10 @@ class instance():
 
         mappings = ['0:v:0']
         for i, stream in enumerate(streams):
-            codec_name = stream.get('codec_name')
-            if codec_name == var.config['encoding']['acodec'] and stream['tags']['language'] == var.config['language']['audio']:
+            if stream['tags']['language'] == var.config['language']['audio']:
                 mappings.append(f'0:a:{i}')
                 break
-        else:
+        if len(mappings) == 1:
             mappings.append('0:a:0')
         
         var.console.debug('Mappings assigned', variables={

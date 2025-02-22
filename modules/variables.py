@@ -34,6 +34,7 @@ default = {
         "crf": 18,
         "preset": "veryfast",
         "acodec": "aac",
+        "ac": 2,
         "threads": 0
     },
     "subtitles": {
