@@ -59,30 +59,15 @@ class instance:
         watchlist = await self.getWatching()
         for entry in watchlist:
             progress = int(entry['progress'])
-            if len(entry['airing']) > progress:
-                airing = entry['airing'][progress]['node']['airingAt']
-                if await self.isToday(airing):
-                    temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress']})
-                    continue
-                if progress > 1:
-                    airing = entry['airing'][progress - 1]['node']['airingAt']
+            toCheck = [progress, progress - 1, progress + 1, progress + 2]
+
+            for episode in toCheck:
+                if episode < len(entry['airing']):
+                    airing = entry['airing'][episode]['node']['airingAt']
+
                     if await self.isToday(airing):
-                        temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress'] + 1})
+                        temp.append({'title': entry['title'], 'airing': airing, 'episode': episode + 1})
                         continue
-                if progress > 2:
-                    airing = entry['airing'][progress - 2]['node']['airingAt']
-                    if await self.isToday(airing):
-                        temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress'] - 1})
-            elif len(entry['airing']) == progress:
-                if progress > 1:
-                    airing = entry['airing'][progress - 1]['node']['airingAt']
-                    if await self.isToday(airing):
-                        temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress'] + 1})
-                        continue
-                if progress > 2:
-                    airing = entry['airing'][progress - 2]['node']['airingAt']
-                    if await self.isToday(airing):
-                        temp.append({'title': entry['title'], 'airing': airing, 'episode': entry['progress'] - 1})
 
         var.schedule = temp
         var.console.info('Schedule updated.')
