@@ -92,7 +92,7 @@ function progress() {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
-				title: entry.slice(5).replaceAll('<', '&lt;'),
+				title: entry.slice(5),
 				episode: db[entry].episode,
 			}),
 		})
