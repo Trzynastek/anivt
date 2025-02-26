@@ -1,9 +1,2 @@
-mkv/
-public/mp4/
-public/db.json
-config.json
-todo/
-install.txt
-tests/
-subtitles/
-.venv/
+configs/
+storage/

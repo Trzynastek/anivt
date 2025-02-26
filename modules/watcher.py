@@ -11,7 +11,7 @@ class instance:
     async def getWatching(self):
         uid = jwt.decode(var.config['anilist']['token']['access_token'], options={"verify_signature": False})['sub']
 
-        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt }} }} }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
+        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ id title {{ english romaji }} synonyms nextAiringEpisode {{ airingAt episode }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
 
         success = False
         while not success:
@@ -41,7 +41,7 @@ class instance:
             'episodes': item['media']['episodes'],
             'cover': item['media']['coverImage']['large'],
             'synonyms': item['media']['synonyms'],
-            'airing': item['media']['airingSchedule']['edges'],
+            'airing': item['media']['nextAiringEpisode'],
             'description': item['media']['description'],
             'url': item['media']['siteUrl']
         } for item in data]
@@ -55,19 +55,19 @@ class instance:
 
     async def updateSchedule(self):
         temp = []
+        offset = 604800
 
         watchlist = await self.getWatching()
         for entry in watchlist:
-            progress = int(entry['progress'])
-            toCheck = [progress, progress - 1, progress + 1, progress + 2]
+            if entry['airing'] == None: 
+                continue
+            airing = entry['airing']['airingAt']
+            episode = entry['airing']['episode']
 
-            for episode in toCheck:
-                if episode < len(entry['airing']):
-                    airing = entry['airing'][episode]['node']['airingAt']
-
-                    if await self.isToday(airing):
-                        temp.append({'title': entry['title'], 'airing': airing, 'episode': episode + 1})
-                        continue
+            if await self.isToday(airing):
+                temp.append({'title': entry['title'], 'airing': airing, 'episode': episode})
+            elif await self.isToday(airing - offset):
+                temp.append({'title': entry['title'], 'airing': airing - offset, 'episode': episode - 1})
 
         var.schedule = temp
         var.console.info('Schedule updated.')
