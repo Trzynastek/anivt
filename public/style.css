@@ -166,6 +166,8 @@ a:visited {
 	font-size: 0.875rem;
 	font-weight: 700;
 	white-space: pre;
+	min-width: 6ch;
+	text-align: center;
 }
 #nav {
 	width: 100%;
