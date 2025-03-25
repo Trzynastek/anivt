@@ -66,7 +66,7 @@ class instance:
 
             if await self.isToday(airing):
                 temp.append({'title': entry['title'], 'airing': airing, 'episode': episode})
-            elif await self.isToday(airing - offset):
+            elif await self.isToday(airing - offset) and episode - 1 > 0:
                 temp.append({'title': entry['title'], 'airing': airing - offset, 'episode': episode - 1})
 
         var.schedule = temp
