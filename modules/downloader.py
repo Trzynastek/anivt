@@ -136,7 +136,7 @@ class instance():
                 'file': out.replace(f'{os.getcwd()}/public/', '')
             })
         except Exception as e:
-            var.cosole.error(f'An exception has occured while processing {title} EP{episode}', variables={
+            var.console.error(f'An exception has occured while processing {title} EP{episode}', variables={
                 'type': type(e),
                 'message': str(e)
             })
