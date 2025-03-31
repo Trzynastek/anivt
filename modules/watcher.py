@@ -76,7 +76,7 @@ class instance:
         if self.lastUpdate == None:
             self.lastUpdate = datetime.now()
             var.schedule = temp
-        elif self.isToday(self.lastUpdate):
+        elif await self.isToday(self.lastUpdate):
             merged = list(dict.fromkeys(var.schedule + temp))
             var.schedule = merged
         else:
