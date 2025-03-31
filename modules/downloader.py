@@ -119,21 +119,28 @@ class instance():
         return(inp, out, magnet, dl, sub)
 
     async def process(self, title, episode, magnet):
-        var.console.info(f'Processing {title} EP{episode}', variables={
-            'magnet': magnet
-        })
-        inp, out, magnet, dl, sub = await self.preCheck(title, episode, magnet)
-        if not os.path.exists(out):
-            if not os.path.exists(inp):
-                await self.download(title, episode, magnet, dl, inp)
-            if not os.path.exists(sub):
-                await self.patchSubtiles(inp, sub)
-            await self.encode(title, episode, inp, out, sub)
-        var.db.update(title, episode, 'status', 'ready')
-        var.db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
-        var.console.info('Processing finished.', variables={
-            'file': out.replace(f'{os.getcwd()}/public/', '')
-        })
+        try:
+            var.console.info(f'Processing {title} EP{episode}', variables={
+                'magnet': magnet
+            })
+            inp, out, magnet, dl, sub = await self.preCheck(title, episode, magnet)
+            if not os.path.exists(out):
+                if not os.path.exists(inp):
+                    await self.download(title, episode, magnet, dl, inp)
+                if not os.path.exists(sub):
+                    await self.patchSubtiles(inp, sub)
+                await self.encode(title, episode, inp, out, sub)
+            var.db.update(title, episode, 'status', 'ready')
+            var.db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
+            var.console.info('Processing finished.', variables={
+                'file': out.replace(f'{os.getcwd()}/public/', '')
+            })
+        except Exception as e:
+            var.cosole.error(f'An exception has occured while processing {title} EP{episode}', variables={
+                'type': type(e),
+                'message': str(e)
+            })
+            var.db.update(title, episode, 'status', 'error')
 
     async def download(self, title, episode, magnet, dl, inp):
         var.console.debug('Downloading.')

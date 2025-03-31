@@ -7,11 +7,12 @@ from modules import variables as var
 class instance:
     def __init__(self):
         self.dl = downloader.instance()
+        self.lastUpdate = None
 
     async def getWatching(self):
         uid = jwt.decode(var.config['anilist']['token']['access_token'], options={"verify_signature": False})['sub']
 
-        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ entries {{ progress media {{ id title {{ english romaji }} synonyms nextAiringEpisode {{ airingAt episode }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
+        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ name entries {{ progress media {{ id title {{ english romaji }} synonyms nextAiringEpisode {{ airingAt episode }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
 
         success = False
         while not success:
@@ -33,7 +34,10 @@ class instance:
                 await asyncio.sleep(10)
 
         data = res.json()
-        data = data['data']['MediaListCollection']['lists'][3]['entries']
+        for value in data['data']['MediaListCollection']['lists']:
+            if value['name'] == 'Watching':
+                data = value['entries']
+                break
         data = [{
             'id': item['media']['id'],
             'progress': item['progress'],
@@ -69,7 +73,15 @@ class instance:
             elif await self.isToday(airing - offset) and episode - 1 > 0:
                 temp.append({'title': entry['title'], 'airing': airing - offset, 'episode': episode - 1})
 
-        var.schedule = temp
+        if self.lastUpdate == None:
+            self.lastUpdate = datetime.now()
+            var.schedule = temp
+        elif self.isToday(self.lastUpdate):
+            merged = list(dict.fromkeys(var.schedule + temp))
+            var.schedule = merged
+        else:
+            var.schedule = temp
+
         var.console.info('Schedule updated.')
 
     async def check(self, partial = False):
