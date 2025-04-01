@@ -74,10 +74,13 @@ class instance:
                 temp.append({'title': entry['title'], 'airing': airing - offset, 'episode': episode - 1})
 
         if self.lastUpdate == None:
-            self.lastUpdate = datetime.now()
+            self.lastUpdate = datetime.now().timestamp()
             var.schedule = temp
         elif await self.isToday(self.lastUpdate):
-            merged = list(dict.fromkeys(var.schedule + temp))
+            merged = var.schedule
+            for item in temp:
+                if item not in merged:
+                    merged.append(item)
             var.schedule = merged
         else:
             var.schedule = temp
