@@ -41,9 +41,7 @@ default = {
         "Fontname": "Roboto Medium",
         "Fontsize": 36,
         "Outline": 4,
-        "MarginV": 40,
-        "resX": 1280,
-        "resY": 720
+        "MarginV": 40
     },
     "anilist": {
         "redirect_base": "http://127.0.0.1:7980",

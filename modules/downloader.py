@@ -62,6 +62,8 @@ class instance():
                 styles = False
             elif line.startswith('Format:') and styles:
                 keys = line.replace(' ', '').split(',')
+            elif line.startswith('PlayResY'):
+                resY = int(line.strip().removeprefix('PlayResY: '))
 
         overrides = []
         for key in var.config['subtitles']:
@@ -73,14 +75,8 @@ class instance():
                 if line.startswith('Style:'):
                     values = line.strip().split(',')
                     for entry in overrides:
-                        values[entry['index']] = entry['value']
+                        values[entry['index']] = await self.convertRes(720, resY, entry['value']) if type(entry['value']) == int else entry['value']
                     line = ', '.join(str(v) for v in values) + '\n'
-                    f.write(line)
-                elif line.startswith('PlayRes'):
-                    if line.startswith('PlayResX'):
-                        line = f'PlayResX: {var.config["subtitles"]["resX"]} \n'
-                    else:
-                        line = f'PlayResY: {var.config["subtitles"]["resY"]} \n'
                     f.write(line)
                 else:
                     f.write(line)
@@ -141,6 +137,9 @@ class instance():
                 'message': str(e)
             })
             var.db.update(title, episode, 'status', 'error')
+
+    async def convertRes(self, original, target, value):
+        return value * (target / original)
 
     async def download(self, title, episode, magnet, dl, inp):
         var.console.debug('Downloading.')
