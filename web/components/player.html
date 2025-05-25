@@ -219,6 +219,7 @@
 
 <script>
 	marked = false
+	videoId = '{{ title }}'
 
 	function playpause(checkfocus = false) {
 		if (player.paused || player.ended) {
@@ -270,14 +271,14 @@
 		time()
 		if (percentage > 0.85 && !marked) {
 			marked = true
-			fetch(`${window.location.origin}/api/watched`, {
+			fetch(`/api/watched`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					title: entry.slice(5),
-					episode: db[entry].episode,
+					title: videoId.slice(5),
+					episode: parseInt(videoId.slice(0, 5), 10),
 				}),
 			})
 		}
