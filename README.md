@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/assets/logo.svg">
+  <img src="web/assets/logo.svg">
   <h3>Your anime media server</h2>
 </div>
 
@@ -31,14 +31,14 @@ Aniv/t is a **media server** with a web interface, auto downloader, AniList sync
 
 ## Planned features
 
--   Dashboard with config menu.
--   Onboarding process.
--   Watchlist.
--   Anime Search.
--   On-demand downloading.
--   Anime recommendations.
--   Related anime.
--   Editable website theme.
+- Dashboard with config menu.
+- Onboarding process.
+- Watchlist.
+- Anime Search.
+- On-demand downloading.
+- Anime recommendations.
+- Related anime.
+- Editable website theme.
 
 ## Will \_\_\_ be added?
 
@@ -62,10 +62,10 @@ You can find the dockerfile and docker-compose.yml in the repo.
 After you build and start the container you will need to change some settings in config.json.
 Here are the settings that need to be changed:
 
--   "secret" - This is the secret key for flask sessions. Set it to something long and hard to guess.
--   "redirect_base" - This is the URL to your instance. typically http://[ip of your server]:[port]
--   "cid" - This is the client ID of your AniList API client.
--   "secret" - This is the secret of your AniList API client.
+- "secret" - This is the secret key for flask sessions. Set it to something long and hard to guess.
+- "redirect_base" - This is the URL to your instance. typically http://[ip of your server]:[port]
+- "cid" - This is the client ID of your AniList API client.
+- "secret" - This is the secret of your AniList API client.
 
 As you probably noticed some of the settings require an AniList API client.
 You can create one [here](https://anilist.co/settings/developer).
@@ -84,9 +84,9 @@ This is the schema for adding RSS feeds in the config file:
 ]
 ```
 
--   "url" - Url to RSS feed with torrent files.
--   "regex" - Regex expression matching two groups - title and episode number.
--   "per*season_episodes" - Some providers may count episodes globally and not per season *(S2E6 -> E18)\_. Make sure to set this to true if that is the case.
+- "url" - Url to RSS feed with torrent files.
+- "regex" - Regex expression matching two groups - title and episode number.
+- "per*season_episodes" - Some providers may count episodes globally and not per season *(S2E6 -> E18)\_. Make sure to set this to true if that is the case.
 
 If you don't know where to find RSS feeds r/Piracy is your friend.
 If you don't know how to create a regex expression you can usually get it done with ChatGPT, make sure to escape all "\\" symbols _(e.g., \\d+ → \\\\d+ in JSON)_ in the config file.
