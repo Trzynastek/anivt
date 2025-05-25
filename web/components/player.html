@@ -215,6 +215,23 @@
 	.hidden {
 		display: none;
 	}
+	.touch {
+		display: none;
+	}
+
+	@media (pointer: coarse) {
+		#playerContainer:fullscreen #controls {
+			width: calc(100% - 40px);
+		}
+		#watermark {
+			top: min(5%, 30px);
+			height: 24px;
+		}
+
+		.touch {
+			display: block;
+		}
+	}
 </style>
 
 <script>
