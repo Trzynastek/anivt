@@ -1,0 +1,370 @@
+<div id="playerContainer" class="showControls">
+	<video id="player" onloadeddata="time(this.duration)" src="{{ video.file }}"></video>
+	<div id="fullscreenControls">
+		<button class="fsSkipBW touch" ondblclick="skip(-5)"></button>
+		<button class="fsPlayPause" onclick="playpause(true)"></button>
+		<button class="fsSkipFW touch" ondblclick="skip(5)"></button>
+	</div>
+	<div class="controlsbox">
+		<div class="controls">
+			<button onclick="playpause()">
+				<svg id="play" width="20" height="22" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M1 3.4197V14.5803C1 16.11 2.64732 17.0734 3.98052 16.3235L13.9011 10.7432C15.2604 9.97854 15.2604 8.02146 13.9011 7.25685L3.98052 1.67654C2.64731 0.926614 1 1.89004 1 3.4197Z" fill="#D9D9D9" stroke="#D9D9D9" stroke-width="2" />
+				</svg>
+				<svg id="pause" class="hidden" width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<rect width="5" height="16" rx="2" fill="#D9D9D9" />
+					<rect x="11" width="5" height="16" rx="2" fill="#D9D9D9" />
+				</svg>
+			</button>
+			<button onclick="skip(-10)" class="skip">
+				<svg width="22" height="22" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M13.5321 4.05196L12.4711 5.11226L12.4711 5.11226L13.5321 4.05196ZM6.47538 14.0831C5.71016 13.7657 4.83253 14.1288 4.51515 14.894C4.19777 15.6592 4.56081 16.5368 5.32602 16.8542L6.47538 14.0831ZM2.17025 2.17072L3.23084 1.10999L2.17025 2.17072ZM4.69022 5.11226C5.68728 4.11452 7.06078 3.5 8.58065 3.5V0.5C6.2328 0.5 4.10489 1.4539 2.56817 2.99167L4.69022 5.11226ZM8.58065 3.5C10.1005 3.5 11.474 4.11452 12.4711 5.11226L14.5931 2.99166C13.0564 1.45389 10.9285 0.5 8.58065 0.5V3.5ZM12.4711 5.11226C13.4672 6.10909 14.0807 7.48148 14.0807 9H17.0807C17.0807 6.65426 16.1285 4.52806 14.5931 2.99166L12.4711 5.11226ZM14.0807 9C14.0807 10.5192 13.4667 11.8921 12.4697 12.8891L14.5911 15.0104C16.1276 13.4739 17.0807 11.3468 17.0807 9H14.0807ZM12.4697 12.8891C11.4728 13.886 10.0999 14.5 8.58065 14.5V17.5C10.9274 17.5 13.0545 16.547 14.5911 15.0104L12.4697 12.8891ZM8.58065 14.5C7.832 14.5 7.12188 14.3513 6.47538 14.0831L5.32602 16.8542C6.33046 17.2708 7.43069 17.5 8.58065 17.5V14.5ZM3.49999 5.89983L3.49954 2.24126L0.499541 2.24163L0.499988 5.9002L3.49999 5.89983ZM1.10965 3.23144L4.76867 6.89001L6.88986 4.76856L3.23084 1.10999L1.10965 3.23144ZM5.75856 4.5H2.09999V7.5H5.75856V4.5ZM4.76867 6.89001C3.88664 6.00809 4.51125 4.5 5.75856 4.5V7.5C7.18406 7.5 7.8979 5.77647 6.88986 4.76856L4.76867 6.89001ZM3.49954 2.24126C3.49969 3.48857 1.99169 4.11337 1.10965 3.23144L3.23084 1.10999C2.2228 0.102075 0.499367 0.81613 0.499541 2.24163L3.49954 2.24126ZM0.499988 5.9002C0.500096 6.78377 1.21641 7.5 2.09999 7.5V4.5C2.87312 4.5 3.49989 5.1267 3.49999 5.89983L0.499988 5.9002Z" fill="#D9D9D9" />
+				</svg>
+			</button>
+			<button onclick="skip(10)" class="skip">
+				<svg width="22" height="22" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M4.04846 4.05196L5.10948 5.11226L5.10948 5.11226L4.04846 4.05196ZM11.1052 14.0831C11.8704 13.7657 12.748 14.1288 13.0654 14.894C13.3828 15.6592 13.0198 16.5368 12.2545 16.8542L11.1052 14.0831ZM15.4103 2.17072L14.3497 1.10999L15.4103 2.17072ZM12.8903 5.11226C11.8933 4.11452 10.5198 3.5 8.99991 3.5V0.5C11.3478 0.5 13.4757 1.4539 15.0124 2.99167L12.8903 5.11226ZM8.99991 3.5C7.48004 3.5 6.10654 4.11452 5.10948 5.11226L2.98743 2.99166C4.52415 1.45389 6.65206 0.5 8.99991 0.5V3.5ZM5.10948 5.11226C4.11333 6.10909 3.49991 7.48148 3.49991 9H0.499912C0.499912 6.65426 1.45209 4.52806 2.98743 2.99166L5.10948 5.11226ZM3.49991 9C3.49991 10.5192 4.11388 11.8921 5.11082 12.8891L2.9895 15.0104C1.45295 13.4739 0.499912 11.3468 0.499912 9H3.49991ZM5.11082 12.8891C6.10777 13.886 7.48071 14.5 8.99991 14.5V17.5C6.65312 17.5 4.52606 16.547 2.9895 15.0104L5.11082 12.8891ZM8.99991 14.5C9.74856 14.5 10.4587 14.3513 11.1052 14.0831L12.2545 16.8542C11.2501 17.2708 10.1499 17.5 8.99991 17.5V14.5ZM14.0806 5.89983L14.081 2.24126L17.081 2.24163L17.0806 5.9002L14.0806 5.89983ZM16.4709 3.23144L12.8119 6.89001L10.6907 4.76856L14.3497 1.10999L16.4709 3.23144ZM11.822 4.5H15.4806V7.5H11.822V4.5ZM12.8119 6.89001C13.6939 6.00809 13.0693 4.5 11.822 4.5V7.5C10.3965 7.5 9.68267 5.77647 10.6907 4.76856L12.8119 6.89001ZM14.081 2.24126C14.0809 3.48857 15.5889 4.11337 16.4709 3.23144L14.3497 1.10999C15.3578 0.102075 17.0812 0.81613 17.081 2.24163L14.081 2.24126ZM17.0806 5.9002C17.0805 6.78377 16.3642 7.5 15.4806 7.5V4.5C14.7074 4.5 14.0807 5.1267 14.0806 5.89983L17.0806 5.9002Z" fill="#D9D9D9" />
+				</svg>
+			</button>
+			<div id="seekbar" onpointerup="seekEnd()" onpointerdown="seekStart(event)">
+				<div class="seekBg">
+					<div id="buffers"></div>
+					<div id="progress"></div>
+				</div>
+			</div>
+			<p id="time">-0</p>
+			<button onclick="fullscreen()">
+				<svg id="enterFS" width="22" height="22" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M1.5 5V3.5C1.5 2.39543 2.39543 1.5 3.5 1.5H5M11 1.5L12.5 1.5C13.6046 1.5 14.5 2.39543 14.5 3.5V5M14.5 11V12.5C14.5 13.6046 13.6046 14.5 12.5 14.5H11M5 14.5L3.5 14.5C2.39543 14.5 1.5 13.6046 1.5 12.5L1.5 11" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+				</svg>
+				<svg id="exitFS" class="hidden" width="22" height="22" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M5 1.5V3C5 4.10457 4.10457 5 3 5H1.5M16.5 5H15C13.8954 5 13 4.10457 13 3V1.5M13 16.5V15C13 13.8954 13.8954 13 15 13H16.5M1.5 13H3C4.10457 13 5 13.8954 5 15L5 16.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+				</svg>
+			</button>
+		</div>
+	</div>
+	<img class="watermark" src="logo.svg" />
+</div>
+
+<style>
+	#player {
+		width: 100%;
+		border-radius: var(--rd);
+		border: 1px solid var(--bf);
+		box-sizing: border-box;
+		background-color: #000;
+		max-height: calc(100vh - 178px);
+	}
+	#playerContainer {
+		position: relative;
+		height: fit-content;
+		box-sizing: border-box;
+		width: 100%;
+	}
+	#playerContainer:fullscreen #player {
+		border: none;
+		max-height: none;
+	}
+	#playerContainer:fullscreen .controlsbox {
+		bottom: 0;
+	}
+	#playerContainer:fullscreen .controls {
+		width: min(80%, 800px);
+	}
+	#playerContainer:fullscreen .watermark {
+		display: block;
+	}
+	.watermark {
+		display: none;
+		font-family: 'Space Grotesk', sans-serif;
+		position: absolute;
+		top: max(min(3%, 25px), 15px);
+		left: max(min(3%, 30px), 15px);
+		opacity: 0.7;
+		font-weight: 700;
+		font-size: 1.5rem;
+	}
+	.controlsbox {
+		position: absolute;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		bottom: -80px;
+		height: 75px;
+	}
+	#playerContainer:fullscreen .controls {
+		transform: translateY(90px);
+		transition: transform 200ms 1000ms ease;
+	}
+	#playerContainer:fullscreen .controlsbox:hover .controls,
+	#playerContainer:fullscreen.showControls .controls {
+		transform: none;
+		transition: transform 200ms 0ms ease;
+	}
+	.controls {
+		display: flex;
+		font-size: 1.5rem;
+		background-color: #1a1a1aaa;
+		border: 1px solid #252525;
+		border-radius: var(--rd);
+		box-shadow: 0 4px 4px #00000060;
+		backdrop-filter: blur(5px);
+		padding: 5px;
+		flex-shrink: 0;
+		width: 100%;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 15px;
+		transition: transform 200ms 0ms ease;
+		box-sizing: border-box;
+	}
+	.controls svg:hover * {
+		stroke: #7d7dff;
+	}
+	.controls .skip:hover *,
+	.controls #pause:hover * {
+		fill: #7d7dff;
+		stroke: none;
+	}
+	#play:hover * {
+		fill: #7d7dff;
+	}
+	.controls button {
+		height: 24px;
+		width: 24px;
+		margin: 10px;
+		padding: 1px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	#seekbar {
+		width: 100%;
+		height: 4px;
+		padding: 10px 0;
+		margin: 0 10px;
+		max-width: 100%;
+		position: relative;
+	}
+	.seekBg {
+		width: 100%;
+		height: 4px;
+		background-color: #757575;
+		border-radius: 2px;
+		max-width: 100%;
+	}
+	#progress {
+		background-color: #7d7dff;
+		height: 4px;
+		border-radius: 2px;
+		min-width: 4px;
+		width: 4px;
+		position: absolute;
+		z-index: 10;
+		max-width: 100%;
+	}
+	#buffers {
+		position: relative;
+		max-width: 100%;
+	}
+	#time {
+		background-color: #d9d9d9;
+		border-radius: 5px;
+		margin-right: 5px;
+		padding: 0.125rem 0.5rem;
+		color: var(--bg);
+		font-size: 0.875rem;
+		font-weight: 700;
+		white-space: pre;
+		min-width: 6ch;
+		text-align: center;
+	}
+	#fullscreenControls {
+		height: 100%;
+		width: 100%;
+		position: absolute;
+		top: 0;
+	}
+	.fsSkipBW {
+		height: 100%;
+		width: 30%;
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	.fsSkipFW {
+		height: 100%;
+		width: 30%;
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
+	.fsPlayPause {
+		width: 100%;
+		height: 100%;
+	}
+	.filler {
+		display: none;
+	}
+	.buffer {
+		height: 4px;
+		background-color: #c0c0c0;
+		position: absolute;
+		border-radius: 2px;
+	}
+	.hidden {
+		display: none;
+	}
+</style>
+
+<script>
+	function playpause(checkfocus = false) {
+		if (player.paused || player.ended) {
+			player.play()
+			document.getElementById('play').classList.add('hidden')
+			document.getElementById('pause').classList.remove('hidden')
+			seekerInterval = setInterval(progress, 500)
+			playerContainer.classList.remove('showControls')
+		} else {
+			if (checkfocus && !focused) {
+				playerContainer.classList.add('showControls')
+				hideTimeout = setTimeout(() => {
+					playerContainer.classList.remove('showControls')
+				}, 1000)
+				return
+			}
+			player.pause()
+			document.getElementById('pause').classList.add('hidden')
+			document.getElementById('play').classList.remove('hidden')
+			clearInterval(seekerInterval)
+			playerContainer.classList.add('showControls')
+		}
+	}
+
+	function skip(amount) {
+		player.currentTime += amount
+		progress()
+		playerContainer.classList.add('show-controls')
+		if (typeof hideTimeout != 'undefined') {
+			clearTimeout(hideTimeout)
+		}
+		hideTimeout = setTimeout(() => {
+			playerContainer.classList.remove('showControls')
+		}, 1000)
+	}
+
+	function fullscreen() {
+		if (document.fullscreenElement) {
+			document.exitFullscreen()
+		} else {
+			playerContainer.requestFullscreen()
+		}
+	}
+
+	function progress() {
+		percentage = (player.currentTime / player.duration).toFixed(2)
+		width = Math.round(seekbar.offsetWidth * percentage)
+		document.getElementById('progress').style.width = width + 'px'
+		time()
+		if (percentage > 0.85 && !marked) {
+			marked = true
+			fetch(`${window.location.origin}/api/watched`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					title: entry.slice(5),
+					episode: db[entry].episode,
+				}),
+			})
+		}
+	}
+
+	function time() {
+		left = Math.round(player.duration - player.currentTime)
+		if (left > 3600) {
+			document.getElementById('time').innerHTML = '-' + new Date(left * 1000).toISOString().slice(11, 19)
+		} else {
+			document.getElementById('time').innerHTML = '-' + new Date(left * 1000).toISOString().slice(14, 19)
+		}
+	}
+
+	function buffer() {
+		buffers.innerHTML = ''
+		for (i = 0; i < player.buffered.length; i++) {
+			start = Math.round((player.buffered.start(i) / player.duration) * 100)
+			len = Math.round(((player.buffered.end(i) - player.buffered.start(i)) / player.duration) * 100)
+			buffers.innerHTML += `<div class="buffer" style="width:${len}%; left:${start}%"></div>`
+		}
+	}
+
+	async function seekStart(event) {
+		updateSeek(event)
+		seekbar.addEventListener('pointermove', updateSeek)
+		if (typeof seekerInterval != 'undefined') {
+			clearInterval(seekerInterval)
+		}
+	}
+
+	function seekEnd() {
+		seekbar.removeEventListener('pointermove', updateSeek)
+		seekerInterval = setInterval(progress, 500)
+	}
+
+	function updateSeek(event) {
+		rect = seekbar.getBoundingClientRect()
+		pos = event.clientX - rect.left
+		percentage = pos / rect.width
+		player.currentTime = player.duration * percentage
+		document.getElementById('progress').style.width = pos + 'px'
+		time()
+	}
+
+	document.addEventListener('keydown', (event) => {
+		switch (event.key) {
+			case ' ':
+			case 'k':
+				event.preventDefault()
+				playpause()
+				break
+			case 'l':
+			case 'ArrowRight':
+				event.preventDefault()
+				skip(10)
+				break
+			case 'j':
+			case 'ArrowLeft':
+				event.preventDefault()
+				skip(-10)
+				break
+			case 'f':
+				event.preventDefault()
+				fullscreen()
+				break
+		}
+	})
+
+	window.addEventListener('focus', () => {
+		focusTimer = setTimeout(() => {
+			focused = true
+		}, 100)
+	})
+
+	window.addEventListener('blur', () => {
+		focused = false
+		clearTimeout(focusTimer)
+	})
+
+	window.addEventListener('fullscreenchange', () => {
+		if (document.fullscreenElement) {
+			document.getElementById('enterFS').classList.add('hidden')
+			document.getElementById('exitFS').classList.remove('hidden')
+		} else {
+			document.getElementById('enterFS').classList.remove('hidden')
+			document.getElementById('exitFS').classList.add('hidden')
+		}
+	})
+
+	setInterval(buffer, 100)
+</script>

@@ -1,2 +1,10 @@
 configs/
 storage/
+.vscode/
+node_modules/
+package-lock.json
+package.json
+.prettierrc
+testserver.py
+logs/
+modules/__pycache__/

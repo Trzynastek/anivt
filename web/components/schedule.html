@@ -1,0 +1,109 @@
+<div class="scheduleContainer">
+	<div class="schedule">
+		<p class="header">Schedule</p>
+		<div id="entries">
+			{% for entry in schedule %}
+				{% include 'scheduleEntry.html' %}
+			{% endfor %}
+		</div>
+	</div>
+</div>
+
+<script>
+	let lastEtagSchedule = null
+
+	async function refreshSchedule() {
+		const headers = lastEtagSchedule ? { 'If-None-Match': lastEtagSchedule } : {}
+		const res = await fetch('/schedule', { headers })
+
+		if (res.status == 304) return
+
+		lastEtagSchedule = res.headers.get('ETag')
+		const html = await res.text()
+		document.getElementById('entries').innerHTML = html
+	}
+
+	setInterval(refreshSchedule, 10000)
+</script>
+
+<style>
+	#entries {
+		height: calc(100% - 60px);
+		overflow-y: scroll;
+		scrollbar-width: none;
+	}
+	#entries::-webkit-scrollbar {
+		display: none;
+	}
+
+	.row {
+		display: flex;
+	}
+	.header {
+		font-size: 2rem;
+		text-align: center;
+		margin-bottom: var(--spacing-m);
+	}
+	.scheduleContainer {
+		display: flex;
+		flex-direction: column;
+	}
+	.schedule {
+		width: 100%;
+		background-color: var(--sf);
+		border-radius: var(--rd);
+		border: 1px solid var(--bd);
+		padding: var(--spacing-m);
+		box-sizing: border-box;
+		position: sticky;
+		top: 94px;
+		overflow: hidden;
+		max-width: 50vw;
+		width: fit-content;
+	}
+	.scheduleEntry {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 15px;
+		position: relative;
+		margin-left: 10px;
+	}
+	.scheduleEntry:before {
+		content: '';
+		display: block;
+		position: absolute;
+		height: 100%;
+		width: 3px;
+		background-color: #757575;
+		left: -10px;
+		border-radius: 2px;
+	}
+	.scheduleEntry.past:before {
+		background-color: #7d7dff;
+	}
+	.scheduleEntry:last-of-type {
+		margin-bottom: 0;
+	}
+	.scheduleEntry .time {
+		margin-right: var(--spacing-s);
+		color: #757575;
+		font-weight: 600;
+	}
+	.scheduleEntry .episode {
+		color: #454545;
+		font-weight: 600;
+	}
+	.scheduleEntry .title {
+		font-size: 1.125rem;
+		white-space: pre;
+		max-width: 100%;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+	@media screen and (max-width: 630px) {
+		.schedule {
+			max-width: unset;
+			width: 100%;
+		}
+	}
+</style>

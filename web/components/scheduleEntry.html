@@ -1,0 +1,7 @@
+<div class="scheduleEntry {{ 'past' if entry.airing < now else '' }}">
+	<div class="row">
+		<p class="time">{{ datetime.fromtimestamp(entry.airing).strftime('%H:%M') }}</p>
+		<p class="episode">EP {{ entry.episode }}</p>
+	</div>
+	<p class="title">{{ entry.title.english or entry.title.romaji }}</p>
+</div>

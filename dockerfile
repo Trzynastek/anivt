@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir \
 
 WORKDIR /anivt/
 
-COPY public/ /anivt/public/
+COPY web/ /anivt/web/
 COPY modules/ /anivt/modules/
 COPY server.py /anivt/server.py
 

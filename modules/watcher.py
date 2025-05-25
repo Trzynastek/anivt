@@ -12,7 +12,7 @@ class instance:
     async def getWatching(self):
         uid = jwt.decode(var.config['anilist']['token']['access_token'], options={"verify_signature": False})['sub']
 
-        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME) {{ lists {{ name entries {{ progress media {{ id title {{ english romaji }} synonyms nextAiringEpisode {{ airingAt episode }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
+        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME, status_in: [CURRENT]) {{ lists {{ name entries {{ progress media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt episode }} }} }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
 
         success = False
         while not success:
@@ -34,10 +34,7 @@ class instance:
                 await asyncio.sleep(10)
 
         data = res.json()
-        for value in data['data']['MediaListCollection']['lists']:
-            if value['name'] == 'Watching':
-                data = value['entries']
-                break
+        data = data['data']['MediaListCollection']['lists'][0]['entries']
         data = [{
             'id': item['media']['id'],
             'progress': item['progress'],
@@ -45,7 +42,7 @@ class instance:
             'episodes': item['media']['episodes'],
             'cover': item['media']['coverImage']['large'],
             'synonyms': item['media']['synonyms'],
-            'airing': item['media']['nextAiringEpisode'],
+            'airing': item['media']['airingSchedule']['edges'],
             'description': item['media']['description'],
             'url': item['media']['siteUrl']
         } for item in data]
@@ -59,19 +56,18 @@ class instance:
 
     async def updateSchedule(self):
         temp = []
-        offset = 604800
 
         watchlist = await self.getWatching()
         for entry in watchlist:
             if entry['airing'] == None: 
                 continue
-            airing = entry['airing']['airingAt']
-            episode = entry['airing']['episode']
+            for node in entry['airing']:
+                node = node['node']
+                airing = node['airingAt']
+                episode = node['episode']
 
-            if await self.isToday(airing):
-                temp.append({'title': entry['title'], 'airing': airing, 'episode': episode})
-            elif await self.isToday(airing - offset) and episode - 1 > 0:
-                temp.append({'title': entry['title'], 'airing': airing - offset, 'episode': episode - 1})
+                if await self.isToday(airing):
+                    temp.append({'title': entry['title'], 'airing': airing, 'episode': episode})
 
         var.schedule = temp
 

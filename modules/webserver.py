@@ -1,23 +1,22 @@
-from flask import Flask, request, send_from_directory, session, make_response, redirect, render_template
+from flask import Flask, request, send_from_directory, session, make_response, redirect, render_template, jsonify
 from flask_cors import CORS
-import json, asyncio, jwt, requests, threading, os
+import json, asyncio, jwt, requests, threading, os, hashlib, time
 from datetime import datetime, timedelta
 from waitress import serve
 from modules import variables as var
-
+from jinja2 import Environment, FileSystemLoader
+from functools import wraps
 
 whitelist = [
-    'auth.html',
-    'auth.css',
-    'auth.js',
-    'assets/logo.svg',
-    'assets/icon.svg'
+    'global.css',
+    'logo.svg',
+    'icon.svg'
 ]
 
 class instance:
     def __init__(self):
         self.app = Flask(__name__)
-        self.app.template_folder = os.getcwd() + '/public/'
+        self.app.template_folder = os.getcwd() + '/web/'
         self.app.secret_key = var.config['secret']
         self.app.config["SESSION_PERMANENT"] = False
         self.app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
@@ -25,6 +24,24 @@ class instance:
         self.app.config['SESSION_COOKIE_NAME'] = "sessionToken"
         CORS(self.app)
         self.createRoutes()
+        self.env = Environment(loader=FileSystemLoader(['web/pages', 'web/components', 'web/layouts']))
+
+    def requireAuth(self, whitelist=None):
+        def decorator(f):
+            @wraps(f)
+            def wrapped(*args, **kwargs):
+                if session.get('authenticated'):
+                    return f(*args, **kwargs)
+
+                if whitelist:
+                    file = kwargs.get('file')
+                    if file in whitelist:
+                        return send_from_directory('../web/assets/', file)
+                template = self.env.get_template('auth.html')
+
+                return template.render(cid=var.config['anilist']['cid'], redirect=var.config['anilist']['redirect_base']), 403
+            return wrapped
+        return decorator
 
     async def getPfp(self, uid):
         if var.db.db['pfp'] == None:
@@ -57,6 +74,7 @@ class instance:
 
     def createRoutes(self):
         @self.app.route('/api/logout')
+        @self.requireAuth()
         def logout():
             session.clear()
             response = make_response(redirect("/"))
@@ -134,15 +152,9 @@ class instance:
                 delay=0
             ), 200
 
-        @self.app.route('/api/redirect', methods=['GET'])
-        def sendRedirect():
-            return {"cid": var.config['anilist']['cid'], "redirect": var.config['anilist']['redirect_base']}
-
         @self.app.route('/api/watched', methods=['POST'])
+        @self.requireAuth()
         def markWatched():
-            if not session.get('authenticated'):
-                return send_from_directory('../public', 'auth.html'), 403
-            
             title = request.json['title']
             episode = request.json['episode']
 
@@ -163,31 +175,77 @@ class instance:
             var.console.info(f'Marked {title} EP{episode} as watched')
             return '', 200
 
-        @self.app.route('/api/schedule', methods=['GET'])
-        def getSchedule():
-            if not session.get('authenticated'):
-                return send_from_directory('../public', 'auth.html'), 403
-            return var.schedule
+        @self.app.route('/schedule', methods=['GET'])
+        @self.requireAuth()
+        def schedule():
+            content = ''.join(
+                self.env.get_template('scheduleEntry.html').render(
+                    entry=entry, 
+                    now=time.time(), 
+                    datetime=datetime
+                )
+                for entry in sorted(var.schedule, key=lambda e: e['airing'])
+            )
+            etag = hashlib.md5(content.encode()).hexdigest()
 
-        @self.app.route('/api/db', methods=['GET'])
-        def getDB():
-            if not session.get('authenticated'):
-                return send_from_directory('../public', 'auth.html'), 403
-            return send_from_directory(var.configs, 'db.json')
+            if request.headers.get('If-None-Match') == etag:
+                return '', 304
+
+            res = make_response(content)
+            res.headers['ETag'] = etag
+            return res
+
+        @self.app.route('/api/pfp', methods=['GET'])
+        @self.requireAuth()
+        def pfp():
+            pfp = var.db.load()['pfp']
+            return jsonify({'pfp': pfp})
 
         @self.app.route('/')
+        @self.requireAuth()
         def homepage():
-            if not session.get('authenticated'):
-                return send_from_directory('../public', 'auth.html'), 403
-            return send_from_directory('../public', 'index.html')
+            videos = var.db.load()['videos']
+            template = self.env.get_template('home.html')
+            return template.render(
+                videos=dict(reversed(list(videos.items()))),
+                schedule=sorted(var.schedule, key=lambda e: e['airing']),
+                now=time.time(),
+                datetime=datetime
+            )
+        
+        @self.app.route('/watch')
+        @self.requireAuth()
+        def watchpage():
+            videoId = request.args.get('id')
+            videos = var.db.load()['videos']
+            template = self.env.get_template('watch.html')
+            return template.render(video=videos[videoId], title=videoId)
+
+        @self.app.route('/feed')
+        @self.requireAuth()
+        def renderFeed():
+            videos = var.db.load()['videos']
+            content = ''.join(
+                self.env.get_template('card.html').render(key=key, entry=entry)
+                for key, entry in reversed(videos.items())
+            )
+            if len(videos) % 2 == 1:
+                content += '<div id="filler"></div>'
+            etag = hashlib.md5(content.encode()).hexdigest()
+
+            if request.headers.get('If-None-Match') == etag:
+                return '', 304
+
+            res = make_response(content)
+            res.headers['ETag'] = etag
+            return res
 
         @self.app.route('/<path:file>')
+        @self.requireAuth(whitelist)
         def serveFile(file):
-            if not session.get('authenticated'):
-                if file in whitelist:
-                    return send_from_directory('../public', file)
-                return send_from_directory('../public', 'auth.html'), 403
-            return send_from_directory('../public', file)
+            if file.startswith('mp4/'):
+                return send_from_directory('../public/', file)
+            return send_from_directory('../web/assets/', file)
     
     def server(self):
         serve(self.app, host=var.config['host'], port=var.config['port'])

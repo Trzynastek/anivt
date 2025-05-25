@@ -1,0 +1,47 @@
+@import url(https://fonts.bunny.net/css?family=outfit:400,600,700|space-grotesk:600);
+
+:root {
+	--bg: #101010;
+	--fg: #d9d9d9;
+	--rd: 10px;
+	--bd: #252525;
+	--sf: #1a1a1a;
+	--spacing-s: 10px;
+	--spacing-m: 20px;
+	--spacing-b: 40px;
+}
+
+body {
+	margin: 0;
+	background-color: var(--bg);
+}
+* {
+	font-family: 'Outfit', sans-serif;
+	color: var(--fg);
+}
+p {
+	margin: 0;
+}
+button {
+	background: none;
+	border: none;
+	outline: none;
+}
+a {
+	text-decoration: none;
+}
+a:visited {
+	color: unset;
+}
+
+.main {
+	padding: var(--spacing-m);
+	display: flex;
+	justify-content: space-evenly;
+	gap: var(--spacing-m);
+}
+@media screen and (max-width: 630px) {
+	.main {
+		flex-direction: column;
+	}
+}

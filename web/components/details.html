@@ -1,0 +1,80 @@
+<div class="details">
+	<div class="leftBlock">
+		<img class="cover" src="{{ video.cover }}" />
+		<a class="anilist" href="{{ video.url }}">
+			<svg class="aniListIcon" width="361" height="273" viewBox="0 0 361 273" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M246.921 203.272V16.602C246.921 5.90401 241.034 0 230.363 0H193.93C183.258 0 177.369 5.90401 177.369 16.602V105.253C177.369 107.75 201.365 119.342 201.992 121.794C220.274 193.404 205.964 250.714 188.633 253.394C216.97 254.799 220.088 268.458 198.981 259.125C202.21 220.916 214.809 220.991 251.03 257.719C251.34 258.036 258.457 273.001 258.9 273.001H344.445C355.117 273.001 361.003 267.101 361.003 256.401V219.877C361.003 209.179 355.117 203.275 344.445 203.275L246.921 203.272Z" fill="#02A9FF" />
+				<path d="M95.681 0.00195312L0 273.002H74.338L90.53 225.78H171.49L187.316 273.002H261.284L165.97 0.00195312H95.681ZM107.457 165.282L130.64 89.653L156.033 165.282H107.457Z" fill="#FEFEFE" />
+			</svg>
+			AniList
+		</a>
+	</div>
+	<p class="title">{{ title[5:] | e }}</p>
+	<p class="description">{{ video.description }}</p>
+</div>
+
+<style>
+	.details {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		grid-column-gap: var(--spacing-m);
+		grid-row-gap: 0px;
+		width: 100%;
+		margin-top: calc(45px + var(--spacing-m));
+		box-sizing: border-box;
+		align-items: start;
+		max-width: 1120px;
+	}
+	.cover {
+		height: 212px;
+		width: 150px;
+		border: 1px solid var(--bd);
+		border-radius: var(--rd);
+	}
+	.aniListIcon {
+		height: 16px;
+		width: fit-content;
+		margin-right: 5px;
+	}
+	.anilist {
+		padding: 10px 15px;
+		border: 1px solid var(--bd);
+		background-color: var(--sf);
+		border-radius: var(--rd);
+		display: flex;
+		font-weight: 700;
+		color: var(--fg);
+		width: 100%;
+		box-sizing: border-box;
+		align-items: center;
+		justify-content: space-evenly;
+		text-align: center;
+		font-size: 1rem;
+		cursor: pointer;
+		margin-top: var(--spacing-s);
+		height: 42px;
+	}
+	.details .title {
+		grid-area: 1 / 2 / 2 / 3;
+		margin: 0 0 15px 0;
+		font-size: 1.5rem;
+	}
+	.description {
+		grid-area: 2 / 2 / 4 / 3;
+	}
+	.leftBlock {
+		grid-area: 1 / 1 / 4 / 2;
+		display: flex;
+		flex-direction: column;
+	}
+
+	@media screen and (max-width: 630px) {
+		.description {
+			grid-area: 4 / 1 / 5 / 3;
+			margin-top: var(--spacing-m);
+		}
+		.details .title {
+			grid-area: 1 / 2 / 4 / 3;
+		}
+	}
+</style>
