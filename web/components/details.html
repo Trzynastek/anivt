@@ -8,6 +8,7 @@
 			</svg>
 			AniList
 		</a>
+		<button class="getShareURL" onclick="getShareKey()">Get ShareURL</button>
 	</div>
 	<p class="title">{{ title[5:] | e }}</p>
 	<p class="description">{{ video.description }}</p>
@@ -36,7 +37,8 @@
 		width: fit-content;
 		margin-right: 5px;
 	}
-	.anilist {
+	.anilist,
+	.getShareURL {
 		padding: 10px 15px;
 		border: 1px solid var(--bd);
 		background-color: var(--sf);

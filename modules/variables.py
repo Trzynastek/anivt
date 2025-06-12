@@ -7,6 +7,8 @@ past = {}
 schedule = []
 authPause = False
 
+shareKeys = {}
+
 configs = os.getcwd() + '/configs'
 if not os.path.exists(configs):
     os.mkdir(configs)

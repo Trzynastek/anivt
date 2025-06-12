@@ -1,4 +1,4 @@
-import feedparser, asyncio, os, requests, re, jwt, json
+import feedparser, asyncio, os, requests, re, jwt, json, time
 from unidecode import unidecode
 from datetime import datetime
 from modules import downloader
@@ -241,11 +241,19 @@ class instance:
         with open(var.configFile, 'r', encoding='utf-8') as f:
             var.config = json.load(f)
         return
+    
+    async def cleanShareKeys(self):
+        now = time.time()
+        var.shareKeys = {k: v for k, v in var.shareKeys.items() if v['expires'] > now}
 
     async def watcher(self):
-        cleanupCounter, fullCounter, patialCounter, scheduleCounter = 0, 0, 0, 0
+        cleanupCounter, fullCounter, patialCounter, scheduleCounter, shareKeyCounter = 0, 0, 0, 0, 0
 
         while True:
+            if shareKeyCounter <= 0:
+                await self.cleanShareKeys()
+                shareKeyCounter = 3600
+
             if scheduleCounter <= 0:
                 await self.updateConfig()
                 await self.updateSchedule()
@@ -271,6 +279,7 @@ class instance:
             fullCounter -= 1
             patialCounter -= 1
             scheduleCounter -= 1
+            shareKeyCounter -= 1
             await asyncio.sleep(1)
 
     def run(self):

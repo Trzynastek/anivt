@@ -1,6 +1,6 @@
 from flask import Flask, request, send_from_directory, session, make_response, redirect, render_template, jsonify
 from flask_cors import CORS
-import json, asyncio, jwt, requests, threading, os, hashlib, time
+import json, asyncio, jwt, requests, threading, os, hashlib, time, secrets
 from datetime import datetime, timedelta
 from waitress import serve
 from modules import variables as var
@@ -246,7 +246,29 @@ class instance:
             if file.startswith('mp4/'):
                 return send_from_directory('../public/', file)
             return send_from_directory('../web/assets/', file)
-    
+        
+        @self.app.route('/api/createShareKey', methods=['POST'])
+        @self.requireAuth()
+        def createShareKey():
+            data = request.get_json()
+            file = data.get('file')
+            duration = int(data.get('duration'))
+            token = secrets.token_urlsafe(24)
+            var.console.info(f'file: {file}, duration: {duration}, token: {token}')
+            var.shareKeys[token] = {
+                'file': file,
+                'expires': time.time() + duration
+            }
+            return {'shareKey': token}
+        
+        @self.app.route('/shareKey/<token>')
+        def serveWithSK(token):
+            data = var.shareKeys.get(token)
+            var.console.info(f'token: {token}')
+            if not token or time.time() > data['expires']:
+                return 'The ShareKey is not valid or expired', 404
+            return send_from_directory('../public/', data['file'])
+        
     def server(self):
         serve(self.app, host=var.config['host'], port=var.config['port'])
     

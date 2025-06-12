@@ -40,6 +40,34 @@ a:visited {
 	justify-content: space-evenly;
 	gap: var(--spacing-m);
 }
+.popup {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	height: 100vh;
+	width: 100vw;
+	background-color: #10101080;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.popupBox {
+	background-color: var(--sf);
+	border-radius: var(--rd);
+	border: 1px solid var(--bd);
+	padding: var(--spacing-m);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.popupHeader {
+	font-size: 1.25rem;
+	margin: 10px 0 20px 0;
+}
+.popupBox a {
+	color: #7d7dff;
+}
 @media screen and (max-width: 630px) {
 	.main {
 		flex-direction: column;
