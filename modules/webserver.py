@@ -254,7 +254,6 @@ class instance:
             file = data.get('file')
             duration = int(data.get('duration'))
             token = secrets.token_urlsafe(24)
-            var.console.info(f'file: {file}, duration: {duration}, token: {token}')
             var.shareKeys[token] = {
                 'file': file,
                 'expires': time.time() + duration
@@ -264,7 +263,6 @@ class instance:
         @self.app.route('/shareKey/<token>')
         def serveWithSK(token):
             data = var.shareKeys.get(token)
-            var.console.info(f'token: {token}')
             if not token or time.time() > data['expires']:
                 return 'The ShareKey is not valid or expired', 404
             return send_from_directory('../public/', data['file'])
