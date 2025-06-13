@@ -2,7 +2,7 @@
 	<a href="/" class="logo">
 		<img src="logo.svg" alt="Aniv/t" />
 	</a>
-	<img id="pfp" />
+	<img id="pfp" onclick="logout()" />
 </div>
 
 <style>
@@ -24,6 +24,7 @@
 		margin-left: auto;
 		height: 34px;
 		border-radius: var(--rd);
+		cursor: pointer;
 	}
 </style>
 
@@ -33,4 +34,11 @@
 		.then((data) => {
 			document.getElementById('pfp').src = data.pfp
 		})
+
+	async function logout() {
+		sure = confirm('Do you really want to log out?')
+		if (sure) {
+			window.location.href = '/api/logout'
+		}
+	}
 </script>

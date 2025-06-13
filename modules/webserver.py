@@ -101,13 +101,13 @@ class instance:
                 }
             )
             token = res.json()
+            template = self.env.get_template('message.html')
 
             if 'error' in token:
                 var.console.error('Invalid AniList auth token repsonse.', variables={
                     'token': token
                 })
-                return render_template(
-                    'message.html', 
+                return template.render(
                     type="error", 
                     message="Incorrect token response.", 
                     redirect=True, 
@@ -137,8 +137,7 @@ class instance:
                 var.console.warn('A not-permitted user tried to log in.', variables={
                     'UID': requestUID
                 })
-                return render_template(
-                    'message.html', 
+                return template.render( 
                     type="error", 
                     message="User not permited", 
                     details="If this is your instance, try removing AniList token from config.", 
@@ -146,8 +145,7 @@ class instance:
                     delay=2000
                 ), 200
             
-            return render_template(
-                'message.html', 
+            return template.render(
                 redirect=True, 
                 delay=0
             ), 200
@@ -262,8 +260,8 @@ class instance:
         
         @self.app.route('/shareKey/<token>')
         def serveWithSK(token):
-            data = var.shareKeys.get(token)
-            if not token or time.time() > data['expires']:
+            data = var.shareKeys.get(token, None)
+            if not data or time.time() > data['expires']:
                 return 'The ShareKey is not valid or expired', 404
             return send_from_directory('../public/', data['file'])
         
