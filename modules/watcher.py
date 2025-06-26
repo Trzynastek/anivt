@@ -257,9 +257,7 @@ class instance:
 
             if scheduleCounter <= 0:
                 if var.config['update_schedule_once_a_day']:
-                    if lastScheduleUpdate == datetime.now().date():
-                        continue
-                    else:
+                    if lastScheduleUpdate != datetime.now().date():
                         lastScheduleUpdate = datetime.now().date()
                         await self.updateConfig()
                         await self.updateSchedule()
