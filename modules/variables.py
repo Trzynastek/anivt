@@ -25,6 +25,8 @@ default = {
     "remove_after": 86400,
     "debug": False,
     "logs": True,
+    "enable_shareKeys": True,
+    "update_schedule_once_a_day": True,
     "rss": [],
     "language": {
         "audio": "jpn",
@@ -66,6 +68,13 @@ with open(configFile, 'r', encoding='utf-8') as f:
     else:
         f.seek(0)
         config = json.load(f)
+
+if set(default) != set(config):
+    missing = [k for k in default if k not in config]
+    for key in missing:
+        config[key] = default[key]
+    with open(configFile, 'w') as f:
+        json.dump(config, f, indent=4) 
 
 db = database.instance(configs)
 console = console.instance(config['debug'], config['logs'])

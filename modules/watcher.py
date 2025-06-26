@@ -12,7 +12,7 @@ class instance:
     async def getWatching(self):
         uid = jwt.decode(var.config['anilist']['token']['access_token'], options={"verify_signature": False})['sub']
 
-        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME, status_in: [CURRENT]) {{ lists {{ name entries {{ progress media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt episode }} }} }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
+        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME, status_in: [CURRENT, PLANNING]) {{ lists {{ name entries {{ progress media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt episode }} }} }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
 
         success = False
         while not success:
@@ -34,7 +34,7 @@ class instance:
                 await asyncio.sleep(10)
 
         data = res.json()
-        data = data['data']['MediaListCollection']['lists'][0]['entries']
+        data = [entry for lst in data['data']['MediaListCollection']['lists'] for entry in lst['entries']]
         data = [{
             'id': item['media']['id'],
             'progress': item['progress'],
@@ -71,7 +71,7 @@ class instance:
 
         var.schedule = temp
 
-        var.console.info('Schedule updated.')
+        var.console.debug('Schedule updated.')
 
     async def check(self, partial = False):
         update = False
@@ -90,7 +90,7 @@ class instance:
 
                 var.past[source['url']] = last
         else:
-            var.console.info('Running full RSS check.')
+            var.console.debug('Running full RSS check.')
 
         if partial and not update:
             var.console.debug('Nothing new was found.')
@@ -208,7 +208,7 @@ class instance:
                                         'original episode': item['episode']
                                     })
         if not partial:
-            var.console.info('Check finished.', variables={
+            var.console.debug('Check finished.', variables={
                 'queue': var.queue
             })
         for item in var.queue[:]:
@@ -218,7 +218,7 @@ class instance:
                     var.queue.remove(item)
 
     async def cleanup(self):
-        var.console.info('Running cleanup.')
+        var.console.debug('Running cleanup.')
         data = var.db.dump()
         for entry in list(data.keys()):
             if data[entry]['watched'] != None:
@@ -248,6 +248,7 @@ class instance:
 
     async def watcher(self):
         cleanupCounter, fullCounter, patialCounter, scheduleCounter, shareKeyCounter = 0, 0, 0, 0, 0
+        lastScheduleUpdate = None
 
         while True:
             if shareKeyCounter <= 0:
@@ -255,8 +256,16 @@ class instance:
                 shareKeyCounter = 3600
 
             if scheduleCounter <= 0:
-                await self.updateConfig()
-                await self.updateSchedule()
+                if var.config['update_schedule_once_a_day']:
+                    if lastScheduleUpdate == datetime.now().date():
+                        continue
+                    else:
+                        lastScheduleUpdate = datetime.now().date()
+                        await self.updateConfig()
+                        await self.updateSchedule()
+                else:
+                    await self.updateConfig()
+                    await self.updateSchedule()
                 scheduleCounter = 3600
 
             if cleanupCounter <= 0:

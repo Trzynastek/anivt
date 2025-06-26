@@ -217,7 +217,7 @@ class instance:
             videoId = request.args.get('id')
             videos = var.db.load()['videos']
             template = self.env.get_template('watch.html')
-            return template.render(video=videos[videoId], title=videoId)
+            return template.render(video=videos[videoId], title=videoId, enableShareKeys=var.config['enable_shareKeys'])
 
         @self.app.route('/feed')
         @self.requireAuth()
@@ -245,25 +245,26 @@ class instance:
                 return send_from_directory('../public/', file)
             return send_from_directory('../web/assets/', file)
         
-        @self.app.route('/api/createShareKey', methods=['POST'])
-        @self.requireAuth()
-        def createShareKey():
-            data = request.get_json()
-            file = data.get('file')
-            duration = int(data.get('duration'))
-            token = secrets.token_urlsafe(24)
-            var.shareKeys[token] = {
-                'file': file,
-                'expires': time.time() + duration
-            }
-            return {'shareKey': token}
-        
-        @self.app.route('/shareKey/<token>')
-        def serveWithSK(token):
-            data = var.shareKeys.get(token, None)
-            if not data or time.time() > data['expires']:
-                return 'The ShareKey is not valid or expired', 404
-            return send_from_directory('../public/', data['file'])
+        if var.config['enable_shareKeys']:
+            @self.app.route('/api/createShareKey', methods=['POST'])
+            @self.requireAuth()
+            def createShareKey():
+                data = request.get_json()
+                file = data.get('file')
+                duration = int(data.get('duration'))
+                token = secrets.token_urlsafe(24)
+                var.shareKeys[token] = {
+                    'file': file,
+                    'expires': time.time() + duration
+                }
+                return {'shareKey': token}
+            
+            @self.app.route('/shareKey/<token>')
+            def serveWithSK(token):
+                data = var.shareKeys.get(token, None)
+                if not data or time.time() > data['expires']:
+                    return 'The ShareKey is not valid or expired', 404
+                return send_from_directory('../public/', data['file'])
         
     def server(self):
         serve(self.app, host=var.config['host'], port=var.config['port'])

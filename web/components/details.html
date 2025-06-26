@@ -8,7 +8,9 @@
 			</svg>
 			AniList
 		</a>
-		<button class="getShareURL" onclick="getShareKey()">Get ShareURL</button>
+		{% if enableShareKeys %}
+			<button class="getShareURL" onclick="getShareKey()">Get ShareURL</button>
+		{% endif %}
 	</div>
 	<p class="title">{{ title[5:] | e }}</p>
 	<p class="description">{{ video.description }}</p>
