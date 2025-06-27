@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir \
     unidecode \
     bencodepy \
     waitress \
+    ruamel.yaml \
     "pyjwt[crypto]" \
     colorama
 

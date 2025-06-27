@@ -1,8 +1,13 @@
-import feedparser, asyncio, os, requests, re, jwt, json, time
+import feedparser, asyncio, os, requests, re, jwt, time
 from unidecode import unidecode
 from datetime import datetime
 from modules import downloader
 from modules import variables as var
+from ruamel.yaml import YAML
+
+yaml = YAML()
+yaml.indent(mapping=4)
+yaml.default_flow_style = False
 
 class instance:
     def __init__(self):
@@ -239,7 +244,7 @@ class instance:
 
     async def updateConfig(self):
         with open(var.configFile, 'r', encoding='utf-8') as f:
-            var.config = json.load(f)
+            var.config = yaml.load(f)
         return
     
     async def cleanShareKeys(self):

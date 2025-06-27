@@ -1,11 +1,16 @@
-from flask import Flask, request, send_from_directory, session, make_response, redirect, render_template, jsonify
+from flask import Flask, request, send_from_directory, session, make_response, redirect, jsonify
 from flask_cors import CORS
-import json, asyncio, jwt, requests, threading, os, hashlib, time, secrets
+import asyncio, jwt, requests, threading, os, hashlib, time, secrets
 from datetime import datetime, timedelta
 from waitress import serve
 from modules import variables as var
 from jinja2 import Environment, FileSystemLoader
 from functools import wraps
+from ruamel.yaml import YAML
+
+yaml = YAML()
+yaml.indent(mapping=4)
+yaml.default_flow_style = False
 
 whitelist = [
     'global.css',
@@ -116,8 +121,11 @@ class instance:
             
             if var.config['anilist']['token'] == None:
                 var.config['anilist']['token'] = token
-                with open('config.json', 'w', encoding='utf-8') as f:
-                    json.dump(var.config, f, indent=4)
+                with open(var.configFile, 'r', encoding='utf-8') as f:
+                    temp = yaml.load(f)
+                temp['anilist']['token'] = token
+                with open(var.configFile, 'w', encoding='utf-8') as f:
+                    yaml.dump(temp, f)
                 var.console.info('AniList token set.', variables={
                     'token': token
                 })
