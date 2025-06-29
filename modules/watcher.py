@@ -267,10 +267,14 @@ class instance:
         var.shareKeys = {k: v for k, v in var.shareKeys.items() if v['expires'] > now}
 
     async def watcher(self):
-        cleanupCounter, fullCounter, patialCounter, scheduleCounter, shareKeyCounter = 0, 0, 0, 0, 0
+        cleanupCounter, fullCounter, patialCounter, scheduleCounter, shareKeyCounter, configCounter = 0, 0, 0, 0, 0, 0
         lastScheduleUpdate = None
 
         while True:
+            if configCounter <= 0:
+                await self.updateConfig()
+                shareKeyCounter = 300
+
             if shareKeyCounter <= 0:
                 await self.cleanShareKeys()
                 shareKeyCounter = 3600
@@ -307,6 +311,7 @@ class instance:
             patialCounter -= 1
             scheduleCounter -= 1
             shareKeyCounter -= 1
+            configCounter -= 1
             await asyncio.sleep(1)
 
     def run(self):
