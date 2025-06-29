@@ -177,41 +177,45 @@ class instance:
                                         if not var.db.exists(title, item['episode']):
                                             var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'])
                                 else:
-                                    query = f'{{ Page {{ media(search: "{title}", type: ANIME) {{ id title {{ romaji }} relations {{ nodes {{ episodes }} }} }} }} }}'
-                                    res = requests.post(
-                                        'https://graphql.anilist.co',
-                                        headers = {
-                                            'Content-Type': 'application/json',
-                                            'Accept': 'application/json'
-                                        },
-                                        json = {'query': query}
-                                    )
-
-                                    data = res.json()
-                                    nodes = data['data']['Page']['media'][0]['relations']['nodes']
-                                    episodes = 0
-
-                                    if len(nodes) > 0:
-                                        for node in nodes:
-                                            if node['episodes'] != None:
-                                                episodes += node['episodes']
-                                    else:
-                                        episodes = 0
-                                    if item['episode'] > episodes:
-                                        episode = item['episode'] - episodes
-                                        if episode > watchlist[index]['progress']:
-                                            entry = {'title': title, 'episode': episode, 'magnet': item['link']}
-                                            if f'{str(episode).zfill(5)}{entry["title"]}' not in var.queueTitles:
-                                                var.queueTitles.append(f'{str(episode).zfill(5)}{entry["title"]}')
-                                                var.queue.append(entry)
-                                                if not var.db.exists(title, episode):
-                                                    var.db.add(title, episode, watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'])
-                                    var.console.debug('Episodes coversion', variables={
-                                        'nodes': nodes,
-                                        'total episodes': episodes,
-                                        'converted episode': episode,
-                                        'original episode': item['episode']
+                                    var.console.warn('"Global" episodes are currently not supported, sorry X﹏X', variables={
+                                        'title': title,
+                                        'episode': item['episode']
                                     })
+                                    # query = f'{{ Page {{ media(search: "{title}", type: ANIME) {{ id title {{ romaji }} relations {{ nodes {{ episodes }} }} }} }} }}'
+                                    # res = requests.post(
+                                    #     'https://graphql.anilist.co',
+                                    #     headers = {
+                                    #         'Content-Type': 'application/json',
+                                    #         'Accept': 'application/json'
+                                    #     },
+                                    #     json = {'query': query}
+                                    # )
+
+                                    # data = res.json()
+                                    # nodes = data['data']['Page']['media'][0]['relations']['nodes']
+                                    # episodes = 0
+
+                                    # if len(nodes) > 0:
+                                    #     for node in nodes:
+                                    #         if node['episodes'] != None:
+                                    #             episodes += node['episodes']
+                                    # else:
+                                    #     episodes = 0
+                                    # if item['episode'] > episodes:
+                                    #     episode = item['episode'] - episodes
+                                    #     if episode > watchlist[index]['progress']:
+                                    #         entry = {'title': title, 'episode': episode, 'magnet': item['link']}
+                                    #         if f'{str(episode).zfill(5)}{entry["title"]}' not in var.queueTitles:
+                                    #             var.queueTitles.append(f'{str(episode).zfill(5)}{entry["title"]}')
+                                    #             var.queue.append(entry)
+                                    #             if not var.db.exists(title, episode):
+                                    #                 var.db.add(title, episode, watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'])
+                                    # var.console.debug('Episodes coversion', variables={
+                                    #     'nodes': nodes,
+                                    #     'total episodes': episodes,
+                                    #     'converted episode': episode,
+                                    #     'original episode': item['episode']
+                                    # })
         if not partial:
             var.console.debug('Check finished.', variables={
                 'queue': var.queue
@@ -232,7 +236,7 @@ class instance:
                 watched = datetime.strptime(data[entry]['watched'], "%Y-%m-%d %H:%M:%S.%f")
                 if (now - watched).total_seconds() > var.config['remove_after']:
                     file = var.db.read(title, data[entry]['episode'], 'file')
-                    file = f'{os.getcwd()}/public/{file}'
+                    file = f'{var.workdir}/public/{file}'
                     if os.path.exists(file):
                         os.remove(file)
                     var.db.remove(title, data[entry]['episode'])
@@ -241,6 +245,17 @@ class instance:
                         'watched': watched,
                         'file': file
                     })
+        for file in os.listdir(f'{var.workdir}/public/mp4/'):
+            file = f'mp4/{file}'
+            found = False
+            for entry in data.values():
+                if entry['file'] == file:
+                    found = True
+                    break
+            if not found:
+                os.remove(f'{var.workdir}/public/{file}')
+        for file in os.listdir(f'{var.workdir}/mkv/'):
+            os.remove(f'{var.workdir}/mkv/{file}')
 
     async def updateConfig(self):
         with open(var.configFile, 'r', encoding='utf-8') as f:

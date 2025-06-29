@@ -21,7 +21,7 @@ whitelist = [
 class instance:
     def __init__(self):
         self.app = Flask(__name__)
-        self.app.template_folder = os.getcwd() + '/web/'
+        self.app.template_folder = var.workdir + '/web/'
         self.app.secret_key = var.config['secret']
         self.app.config["SESSION_PERMANENT"] = False
         self.app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)

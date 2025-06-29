@@ -12,10 +12,12 @@ queueTitles = []
 past = {}
 schedule = []
 authPause = False
+blacklisted = []
 
 shareKeys = {}
 
-configs = os.getcwd() + '/configs'
+workdir = os.getcwd()
+configs = workdir + '/configs'
 if not os.path.exists(configs):
     os.mkdir(configs)
 
@@ -30,6 +32,8 @@ default = CommentedMap({
     "full_interval": 1200,
     "partial_interval": 120,
     "remove_after": 86400,
+    "download_timeout": 240,
+    "download_retries": 3,
     "debug": False,
     "logs": True,
     "enable_shareKeys": True,
@@ -39,6 +43,11 @@ default = CommentedMap({
         "audio": "jpn",
         "subtitles": "eng"
     },
+    "language_fallback": {
+        "audio": "eng",
+        "subtitles": "eng"
+    },
+    "encode_when_no_language": False,
     "encoding": {
         "vcodec": "libx264",
         "pix_fmt": "yuv420p",
@@ -95,6 +104,19 @@ def addComments(content):
         ' \n'
         'Default: 86400'
     ))
+    content.yaml_set_comment_before_after_key('download_timeout', before=(
+        '\n'
+        'After how long should of being stuck should the download restart.\n'
+        ' \n'
+        'When the download progress is stuck at the same % for amount of time set here the download will restart.\n'
+        'Default: 240'
+    ))
+    content.yaml_set_comment_before_after_key('download_retries', before=(
+        '\n'
+        'How many times can the download be restarted when stuck.\n'
+        ' \n'
+        'Default: 3'
+    ))
     content.yaml_set_comment_before_after_key('enable_shareKeys', before=(
         '\n'
         'Enables option to generate a temporary unauthenticated URL to any episode.\n'
@@ -117,12 +139,26 @@ def addComments(content):
         "  regex: 'Regex matching two groups: title and episode number.'\n"
         '  per_season_episodes: false / true'
     ))
+    content.yaml_set_comment_before_after_key('encode_when_no_language', before=(
+        '\n'
+        'When disabled the episode will not be encoded when neither the preferred language nor the fallback language is found.\n'
+        ' \n'
+        'When this is enabled the episode will fallback to first available stream and encode it.\n'
+        'Default: False'
+    ))
     content.yaml_set_comment_before_after_key('language', before=(
         '\n'
         'Preferred languages used when encoding.\n'
         ' \n'
-        'If a selected language is not found in the MKV file, it will fall back to the first available.\n'
         'Default audio: jpn\n'
+        'Default subtitles: eng'
+    ))
+    content.yaml_set_comment_before_after_key('language_fallback', before=(
+        '\n'
+        'Fallback for when the preferred language is not available.\n'
+        ' \n'
+        'If a selected language is not found in the MKV file, it will fall back to one set here instead.\n'
+        'Default audio: eng\n'
         'Default subtitles: eng'
     ))
     content.yaml_set_comment_before_after_key('encoding', before=(

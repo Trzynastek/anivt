@@ -1,4 +1,4 @@
-import bencodepy, hashlib, base64, shlex, urllib.parse, os, re, asyncio, json, requests
+import bencodepy, hashlib, base64, shlex, urllib.parse, os, re, asyncio, json, requests, time
 from datetime import datetime, timedelta
 import libtorrent as lt
 from ffmpeg import Progress
@@ -7,7 +7,7 @@ from modules import variables as var
 
 class instance():
     def __init__(self):
-        subPath = os.getcwd() + '/subtitles'
+        subPath = var.workdir + '/subtitles'
         if not os.path.exists(subPath):
             os.mkdir(subPath)
 
@@ -39,7 +39,19 @@ class instance():
                 mappings = f'0:s:{i}'
                 break
         if mappings == None:
-            mappings = '0:s:0'
+            for i, stream in enumerate(streams):
+                if stream['tags']['language'] == var.config['language_fallback']['subtitles']:
+                    mappings = f'0:s:{i}'
+                    break
+        if mappings == None:
+            if var.config['encode_when_no_language']:
+                mappings = '0:s:0'
+            else:
+                var.console.debug('Subtitles language not available', variables={
+                    'mappings': mappings,
+                    'encode_when_no_language': var.config['encode_when_no_language']
+                })
+                return False
 
         ffmpeg = (
             FFmpeg()
@@ -85,8 +97,10 @@ class instance():
             'sub': sub
         })
 
+        return True
+
     async def preCheck(self, title, episode, magnet):
-        file = os.getcwd() + '/mkv/' + f'{title}[Ep.{episode}].mkv'
+        file = var.workdir + '/mkv/' + f'{title}[Ep.{episode}].mkv'
         inp = re.sub(r'[^A-Za-z0-9 /\[\].]+', '', file).replace(' ', '_')
         out = inp.replace('.mkv', '.mp4').replace('/mkv/', '/public/mp4/')
         sub = inp.replace('.mkv', '.ass').replace('/mkv/', '/subtitles/')
@@ -94,13 +108,13 @@ class instance():
 
         if os.path.exists(out):
             var.db.update(title, episode, 'status', 'ready')
-            var.db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
+            var.db.update(title, episode, 'file', out.replace(f'{var.workdir}/public/', ''))
         elif not os.path.exists(inp):
             res = requests.get(magnet)
             data = res.content
             magnet = await self.toMagnet(data)
             query = urllib.parse.urlparse(magnet).query
-            dl = os.getcwd() + '/mkv/' + urllib.parse.parse_qs(query).get('dn', [None])[0]
+            dl = var.workdir + '/mkv/' + urllib.parse.parse_qs(query).get('dn', [None])[0]
         else:
             magnet, dl = None, None
 
@@ -116,6 +130,14 @@ class instance():
 
     async def process(self, title, episode, magnet):
         try:
+            if magnet in var.blacklisted:
+                var.console.debug('Skipping beacause of: blacklist', variables={
+                    'magnet': magnet,
+                    'title': title,
+                    'episode': episode
+                })
+                var.db.remove(title, episode)
+                return
             var.console.info(f'Processing {title} EP{episode}', variables={
                 'magnet': magnet
             })
@@ -124,12 +146,32 @@ class instance():
                 if not os.path.exists(inp):
                     await self.download(title, episode, magnet, dl, inp)
                 if not os.path.exists(sub):
-                    await self.patchSubtiles(inp, sub)
-                await self.encode(title, episode, inp, out, sub)
+                    subtitlesOk = await self.patchSubtiles(inp, sub)
+                else:
+                    subtitlesOk = True
+                if not subtitlesOk:
+                    var.console.info('Processing aborted - no language', variables={
+                        'reason': 'Skipping beacause of: no subtitle language found',
+                        'magnet': magnet,
+                        'title': title,
+                        'episode': episode
+                    })
+                    var.db.remove(title, episode)
+                    return
+                encodeOk = await self.encode(title, episode, inp, out, sub)
+                if not encodeOk:
+                    var.console.info('Processing aborted - no language', variables={
+                        'reason': 'Skipping beacause of: no audio language found',
+                        'magnet': magnet,
+                        'title': title,
+                        'episode': episode
+                    })
+                    var.db.remove(title, episode)
+                    return
             var.db.update(title, episode, 'status', 'ready')
-            var.db.update(title, episode, 'file', out.replace(f'{os.getcwd()}/public/', ''))
+            var.db.update(title, episode, 'file', out.replace(f'{var.workdir}/public/', ''))
             var.console.info('Processing finished.', variables={
-                'file': out.replace(f'{os.getcwd()}/public/', '')
+                'file': out.replace(f'{var.workdir}/public/', '')
             })
         except Exception as e:
             var.console.error(f'An exception has occured while processing {title} EP{episode}', variables={
@@ -144,22 +186,50 @@ class instance():
     async def download(self, title, episode, magnet, dl, inp):
         var.console.debug('Downloading.')
         var.db.update(title, episode, 'status', 'downloading')
-        session = lt.session()
-        params = {
-            'save_path': './mkv/',
-            'url': magnet
-        }
-        torrent = session.add_torrent(params)
+        retries = 0
 
-        status = torrent.status()
-        while not status.is_seeding:
+        while True:
+            session = lt.session()
+            params = {
+                'save_path': './mkv/',
+                'url': magnet
+            }
+            torrent = session.add_torrent(params)
+
+            lastChange = time.time()
+            lastPercentage = 0
+            restart = False
+
             status = torrent.status()
-            var.db.update(title, episode, 'status', f'downloading {round(status.progress * 100)}%')
-            await asyncio.sleep(1)
+            while not status.is_seeding:
+                percentage = round(status.progress * 100)
+                if lastPercentage == percentage:
+                    if time.time() - lastChange > var.config['download_timeout']:
+                        restart = True
+                        break
+                else:
+                    lastPercentage = percentage   
+                    lastChange = time.time()
+                status = torrent.status()
+                var.db.update(title, episode, 'status', f'downloading {percentage}%')
+                await asyncio.sleep(1)
+            
+            if not restart:
+                session.remove_torrent(torrent)
+                session.pause()
+                os.rename(dl, inp)
+                break
 
-        session.remove_torrent(torrent)
-        session.pause()
-        os.rename(dl, inp)
+            if retries >= var.config['download_retries']:
+                break
+            else:
+                retries += 1
+                var.console.debug('Download stuck, restarting.', variables={
+                    'title': title,
+                    'episode': episode,
+                    'retries': retries
+                })
+
 
     async def encode(self, title, episode, inp, out, sub):
         var.console.debug('Encoding.')
@@ -189,7 +259,19 @@ class instance():
                 mappings.append(f'0:a:{i}')
                 break
         if len(mappings) == 1:
-            mappings.append('0:a:0')
+            for i, stream in enumerate(streams):
+                if stream['tags']['language'] == var.config['language_fallback']['audio']:
+                    mappings.append(f'0:a:{i}')
+                    break
+        if len(mappings) == 1:
+            if var.config['encode_when_no_language']:
+                mappings.append('0:a:0')
+            else:
+                var.console.debug('Audio language not available', variables={
+                    'mappings': mappings,
+                    'encode_when_no_language': var.config['encode_when_no_language']
+                })
+                return False
         
         var.console.debug('Mappings assigned', variables={
             'mappings': mappings
@@ -220,3 +302,5 @@ class instance():
         var.console.debug('Encoding finished', variables={
             'file': out
         })
+
+        return True
