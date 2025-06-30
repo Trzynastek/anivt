@@ -273,7 +273,7 @@ class instance:
         while True:
             if configCounter <= 0:
                 await self.updateConfig()
-                shareKeyCounter = 300
+                configCounter = 300
 
             if shareKeyCounter <= 0:
                 await self.cleanShareKeys()
@@ -281,7 +281,7 @@ class instance:
 
             if blacklistCounter <= 0:
                 var.db.cleanup()
-                shareKeyCounter = 28800
+                blacklistCounter = 28800
 
             if scheduleCounter <= 0:
                 if var.config['update_schedule_once_a_day']:

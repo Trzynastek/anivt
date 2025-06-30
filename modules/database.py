@@ -1,10 +1,11 @@
-import json, os, time
+import json, os, time, threading
 
 default = {'videos': {}, 'pfp': None, 'blacklist': {}}
 
 class instance:
     def __init__(self, configs):
         self.dbf = f'{configs}/db.json'
+        self.lock = threading.Lock()
         self.ensureDb()
         self.db = self.load()
         for key, value in default.items():
@@ -13,23 +14,26 @@ class instance:
         self.save()
 
     def ensureDb(self):
-        if not os.path.exists(self.dbf):
-            with open(self.dbf, 'w', encoding='utf-8') as f:
-                json.dump(default, f, indent=4)
-        else:
-            with open(self.dbf, 'r', encoding='utf-8') as f:
-                char = f.read(1)
-                if not char:
-                    with open(self.dbf, 'w') as f:
-                        json.dump(default, f, indent=4)
+        with self.lock:
+            if not os.path.exists(self.dbf):
+                with open(self.dbf, 'w', encoding='utf-8') as f:
+                    json.dump(default, f, indent=4)
+            else:
+                with open(self.dbf, 'r', encoding='utf-8') as f:
+                    char = f.read(1)
+                    if not char:
+                        with open(self.dbf, 'w') as f:
+                            json.dump(default, f, indent=4)
     
     def load(self):
-        with open(self.dbf, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        with self.lock:
+            with open(self.dbf, 'r', encoding='utf-8') as f:
+                return json.load(f)
     
     def save(self):
-        with open(self.dbf, 'w', encoding='utf-8') as f:
-            json.dump(self.db, f, ensure_ascii=False, indent=4)
+        with self.lock:
+            with open(self.dbf, 'w', encoding='utf-8') as f:
+                json.dump(self.db, f, ensure_ascii=False, indent=4)
     
     def update(self, title, episode, key, value):
         target = f'{str(episode).zfill(5)}{title}'

@@ -247,5 +247,5 @@ if missing:
     with open(configFile, 'w') as f:
         yaml.dump(update, f)
 
-db = database.instance(configs)
 console = console.instance(config['debug'], config['logs'])
+db = database.instance(configs)

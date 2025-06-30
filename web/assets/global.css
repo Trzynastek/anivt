@@ -1,4 +1,7 @@
-@import url(https://fonts.bunny.net/css?family=outfit:400,600,700|space-grotesk:600);
+@font-face {
+	font-family: 'Outfit';
+	src: url('Outfit.ttf') format('truetype');
+}
 
 :root {
 	--bg: #101010;

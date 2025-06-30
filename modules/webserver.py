@@ -230,7 +230,7 @@ class instance:
         @self.app.route('/feed')
         @self.requireAuth()
         def renderFeed():
-            videos = var.db.load()['videos']
+            videos = var.db.dump()
             content = ''.join(
                 self.env.get_template('card.html').render(key=key, entry=entry)
                 for key, entry in reversed(videos.items())
