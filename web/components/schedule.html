@@ -2,9 +2,13 @@
 	<div class="schedule">
 		<p class="header">Schedule</p>
 		<div id="entries">
-			{% for entry in schedule %}
-				{% include 'scheduleEntry.html' %}
-			{% endfor %}
+			{% if schedule %}
+				{% for entry in schedule %}
+					{% include 'scheduleEntry.html' %}
+				{% endfor %}
+			{% else %}
+				Nothing here ¯\_(ツ)_/¯
+			{% endif %}
 		</div>
 	</div>
 </div>

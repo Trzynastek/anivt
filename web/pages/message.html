@@ -3,12 +3,12 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="stylesheet" href="/auth.css" />
+		<link rel="stylesheet" href="/global.css" />
 		<link rel="shortcut icon" href="/assets/icon.svg" type="image/x-icon" />
 		<title>Aniv/t</title>
 	</head>
 	<body>
-		<div id="auth">
+		<div class="messageBox">
 			{% if message %}
 			<p class="message {{ type }}">{{ message }}</p>
 			{% endif %} {% if details %}
@@ -23,4 +23,23 @@
 			{% endif %}
 		</div>
 	</body>
+    <style>
+        .messageBox {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+        .message {
+			margin: 0;
+			font-size: 1.5rem;
+			color: #7d7dff;
+		}
+        .error {
+			color: #ff7d7d;
+		}
+    </style>
 </html>

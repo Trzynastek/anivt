@@ -192,6 +192,8 @@ class instance:
                 )
                 for entry in sorted(var.schedule, key=lambda e: e['airing'])
             )
+            if not content:
+                return 'Nothing here ¯\_(ツ)_/¯'
             etag = hashlib.md5(content.encode()).hexdigest()
 
             if request.headers.get('If-None-Match') == etag:

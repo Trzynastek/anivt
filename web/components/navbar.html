@@ -2,7 +2,18 @@
 	<a href="/" class="logo">
 		<img src="logo.svg" alt="Aniv/t" />
 	</a>
-	<img id="pfp" onclick="logout()" />
+	<img id="pfp" />
+	<button class="dropdownToggle" onclick="dropdown()">
+		<svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M2 2H21.5M2 10H21.5M2 18H21.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round" />
+		</svg>
+	</button>
+	<div id="dropdown" class="hidden">
+		<button class="dropdownOption logout" onclick="logout()">Logout</button>
+		<!-- <a href="/watchlist" class="dropdownOption">Watchlist</a>
+		<a href="/profile" class="dropdownOption">Profile</a>
+		<a href="/dashboard" class="dropdownOption">Dashboard</a> -->
+	</div>
 </div>
 
 <style>
@@ -26,6 +37,41 @@
 		border-radius: var(--rd);
 		cursor: pointer;
 	}
+	.logout {
+		color: #ff7d7d;
+	}
+	.dropdownOption {
+		background-color: var(--sf);
+		border-top: 1px solid var(--bd);
+		font-size: 1.125rem;
+		padding: 6px 20px;
+		width: 100%;
+		text-align: center;
+		cursor: pointer;
+		box-sizing: border-box;
+	}
+	.dropdownOption:first-child {
+		border-top: none;
+	}
+	#dropdown {
+		border-radius: var(--rd);
+		overflow: hidden;
+		height: auto;
+		width: auto;
+		position: absolute;
+		top: calc(var(--spacing-m) + 34px + var(--spacing-s));
+		right: var(--spacing-m);
+		border: 1px solid var(--bd);
+		box-shadow: 0 0 10px 0 #00000080;
+		display: flex;
+		flex-direction: column;
+	}
+	.hidden {
+		display: none !important;
+	}
+	.dropdownToggle {
+		margin-left: var(--spacing-m);
+	}
 </style>
 
 <script>
@@ -36,9 +82,10 @@
 		})
 
 	async function logout() {
-		sure = confirm('Do you really want to log out?')
-		if (sure) {
-			window.location.href = '/api/logout'
-		}
+		window.location.href = '/api/logout'
+	}
+
+	function dropdown() {
+		document.getElementById('dropdown').classList.toggle('hidden')
 	}
 </script>
