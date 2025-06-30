@@ -1,21 +1,27 @@
-import json, os
+import json, os, time
+
+default = {'videos': {}, 'pfp': None, 'blacklist': {}}
 
 class instance:
     def __init__(self, configs):
         self.dbf = f'{configs}/db.json'
         self.ensureDb()
         self.db = self.load()
+        for key, value in default.items():
+            if key not in self.db:
+                self.db[key] = value
+        self.save()
 
     def ensureDb(self):
         if not os.path.exists(self.dbf):
             with open(self.dbf, 'w', encoding='utf-8') as f:
-                json.dump({'videos': {}, 'pfp': None}, f, indent=4)
+                json.dump(default, f, indent=4)
         else:
             with open(self.dbf, 'r', encoding='utf-8') as f:
                 char = f.read(1)
                 if not char:
                     with open(self.dbf, 'w') as f:
-                        json.dump({'videos': {}, 'pfp': None}, f, indent=4)
+                        json.dump(default, f, indent=4)
     
     def load(self):
         with open(self.dbf, 'r', encoding='utf-8') as f:
@@ -47,6 +53,20 @@ class instance:
             "description": description,
             "url": url
         }
+        self.save()
+
+    def blacklisted(self):
+        return set(self.db['blacklist'].keys())
+
+    def blacklist(self, magnet):
+        self.db['blacklist'][magnet] = time.time()
+        self.save()
+
+    def cleanup(self):
+        now = time.time()
+        for item in list(self.db['blacklist'].keys()):
+            if now -self.db['blacklist'][item] > 604800:
+                del self.db['blacklist'][item]
         self.save()
 
     def exists(self, title, episode):

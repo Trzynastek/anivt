@@ -12,7 +12,6 @@ queueTitles = []
 past = {}
 schedule = []
 authPause = False
-blacklisted = []
 
 shareKeys = {}
 

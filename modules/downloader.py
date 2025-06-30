@@ -130,7 +130,8 @@ class instance():
 
     async def process(self, title, episode, magnet):
         try:
-            if magnet in var.blacklisted:
+            inp, out, magnet, dl, sub = await self.preCheck(title, episode, magnet)
+            if magnet in var.db.blacklisted():
                 var.console.debug('Skipping beacause of: blacklist', variables={
                     'magnet': magnet,
                     'title': title,
@@ -141,7 +142,6 @@ class instance():
             var.console.info(f'Processing {title} EP{episode}', variables={
                 'magnet': magnet
             })
-            inp, out, magnet, dl, sub = await self.preCheck(title, episode, magnet)
             if not os.path.exists(out):
                 if not os.path.exists(inp):
                     await self.download(title, episode, magnet, dl, inp)
@@ -157,6 +157,7 @@ class instance():
                         'episode': episode
                     })
                     var.db.remove(title, episode)
+                    var.db.blacklist(magnet)
                     return
                 encodeOk = await self.encode(title, episode, inp, out, sub)
                 if not encodeOk:
@@ -166,6 +167,7 @@ class instance():
                         'title': title,
                         'episode': episode
                     })
+                    var.db.blacklist(magnet)
                     var.db.remove(title, episode)
                     return
             var.db.update(title, episode, 'status', 'ready')
