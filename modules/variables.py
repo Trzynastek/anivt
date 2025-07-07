@@ -95,7 +95,7 @@ def addComments(content):
         '\n'
         'How often Aniv/t checks for updates in RSS feeds.\n'
         ' \n'
-        'Default: 120'
+        'Default: 300'
     ))
     content.yaml_set_comment_before_after_key('remove_after', before=(
         '\n'
