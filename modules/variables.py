@@ -29,7 +29,7 @@ default = CommentedMap({
     "port": "7980",
     "cleanup_interval": 3600,
     "full_interval": 1200,
-    "partial_interval": 120,
+    "partial_interval": 300,
     "remove_after": 86400,
     "download_timeout": 240,
     "download_retries": 3,

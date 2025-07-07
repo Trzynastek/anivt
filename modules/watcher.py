@@ -17,7 +17,7 @@ class instance:
     async def getWatching(self):
         uid = jwt.decode(var.config['anilist']['token']['access_token'], options={"verify_signature": False})['sub']
 
-        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME, status_in: [CURRENT, PLANNING]) {{ lists {{ name entries {{ progress media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt episode }} }} }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
+        query = f'{{ MediaListCollection(userId: {uid}, type: ANIME, status_in: [CURRENT, PLANNING]) {{ lists {{ name entries {{ progress status media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt episode }} }} }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
 
         success = False
         while not success:
@@ -49,7 +49,8 @@ class instance:
             'synonyms': item['media']['synonyms'],
             'airing': item['media']['airingSchedule']['edges'],
             'description': item['media']['description'],
-            'url': item['media']['siteUrl']
+            'url': item['media']['siteUrl'],
+            'status': item['status']
         } for item in data]
 
         return data
@@ -101,6 +102,7 @@ class instance:
             var.console.debug('Nothing new was found.')
             return
         
+        watchlist = await self.getWatching()
         for source in var.config['rss']:
             raw = feedparser.parse(source['url'])['entries']
             feed = []
@@ -115,7 +117,6 @@ class instance:
                     'link': item['link']
                 })
 
-            watchlist = await self.getWatching()
             filters = []
             for item in watchlist:
                 temp = []
@@ -161,7 +162,7 @@ class instance:
 
                         title = title.replace("'", '’')
 
-                        if normItem in normTitle:
+                        if normItem == normTitle:
                             var.console.debug('Title found.', variables={
                                 'title': title,
                                 'normItem': normItem,
@@ -175,7 +176,7 @@ class instance:
                                         var.queueTitles.append(f'{str(item["episode"]).zfill(5)}{entry["title"]}')
                                         var.queue.append(entry)
                                         if not var.db.exists(title, item['episode']):
-                                            var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'])
+                                            var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'], watchlist[index]['status'])
                                 else:
                                     var.console.warn('"Global" episodes are currently not supported, sorry X﹏X', variables={
                                         'title': title,

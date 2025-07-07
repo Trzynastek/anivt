@@ -168,8 +168,12 @@ class instance:
                 now = str(datetime.now())
                 var.db.update(title, episode, 'watched', now)
                 id = var.db.read(title, episode, 'id')
-                query = f'mutation {{ SaveMediaListEntry(mediaId: {id}, progress: {episode}) {{ id progress }} }}'
-                res = requests.post(
+                status = var.db.read(title, episode, 'anilistStatus')
+                if status == "PLANNING" or status == None:
+                    query = f'mutation {{ SaveMediaListEntry(mediaId: {id}, progress: {episode}, status: CURRENT) {{ id progress status }} }}'
+                else:
+                    query = f'mutation {{ SaveMediaListEntry(mediaId: {id}, progress: {episode}) {{ id progress }} }}'
+                requests.post(
                     'https://graphql.anilist.co',
                     headers = {
                         'Content-Type': 'application/json',

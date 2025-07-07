@@ -45,7 +45,7 @@ class instance:
         del self.db['videos'][target]
         self.save()
     
-    def add(self, title, episode, cover, id, description, url):
+    def add(self, title, episode, cover, id, description, url, status):
         target = f'{str(episode).zfill(5)}{title}'
         self.db['videos'][target] = {
             "id": id,
@@ -55,7 +55,8 @@ class instance:
             "watched": None,
             "status": "in queue",
             "description": description,
-            "url": url
+            "url": url,
+            "anilistStatus": status
         }
         self.save()
 
@@ -79,7 +80,7 @@ class instance:
     
     def read(self, title, episode, key):
         target = f'{str(episode).zfill(5)}{title}'
-        return self.db['videos'][target][key]
+        return self.db.get('videos', {}).get(target, {}).get(key)
     
     def dump(self):
         return self.db['videos']
