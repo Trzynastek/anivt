@@ -79,6 +79,20 @@ class instance:
 
         var.console.debug('Schedule updated.')
 
+    async def normalize(self, text):
+        stripPatterns = [
+             r'\bseason\s*\d+\b',
+            r'\bpart\s*\d+\b',
+            r'\b\d+(st|nd|rd|th)?\sseason\b',
+            r'\b\d+(st|nd|rd|th)?\b',
+            r'[^A-Za-z0-9]+'
+        ]
+
+        text = unidecode(text).lower()
+        for pattern in stripPatterns:
+            text = re.sub(pattern, '', text)
+        return text
+
     async def check(self, partial = False):
         update = False
 
@@ -149,8 +163,11 @@ class instance:
                         if title is None:
                             continue
 
-                        normTitle = re.sub(r'[^A-Za-z0-9]+', '', unidecode(title).lower())
-                        normItem = re.sub(r'[^A-Za-z0-9]+', '', unidecode(item['title']).lower())
+                        # normTitle = re.sub(r'[^A-Za-z0-9]+', '', unidecode(title).lower())
+                        # normItem = re.sub(r'[^A-Za-z0-9]+', '', unidecode(item['title']).lower())
+                        normTitle = await self.normalize(title)
+                        normItem = await self.normalize(item['title'])
+
                         if len(normTitle) == 0 or len(normItem) == 0:
                             continue
 

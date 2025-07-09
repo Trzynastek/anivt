@@ -68,7 +68,8 @@ class instance:
             self.logger.warning(f"{time} {level} {message}", extra={'target': 'file'})
         elif level == "ERROR":
             self.logger.error(f"{Back.LIGHTBLACK_EX}{Fore.BLACK} {time} {Style.RESET_ALL}{Back.RED}{Style.BRIGHT}{Fore.WHITE} {level} {Style.RESET_ALL} {message}{var}", extra={'target': 'console'})
-            self.logger.error(f"{time} {level} {message}", extra={'target': 'file'})
+            errorVar = f"\n" + " ".join(f"{k}: {v};" for k, v in variables.items())
+            self.logger.error(f"{time} {level} {message} {errorVar}", extra={'target': 'file'})
         elif level == "DEBUG":
             self.logger.debug(f"{Back.LIGHTBLACK_EX}{Fore.BLACK} {time} {Style.RESET_ALL}{Back.BLUE}{Style.BRIGHT}{Fore.WHITE} {level} {Style.RESET_ALL} {message}{var}", extra={'target': 'console'})
             self.logger.debug(f"{time} {level} {message}", extra={'target': 'file'})
