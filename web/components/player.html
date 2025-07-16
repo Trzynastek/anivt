@@ -237,6 +237,9 @@
 <script>
 	marked = false
 	videoId = '{{ title }}'
+	source = '{{ video.source }}'
+	episode = '{{ video.episode }}'
+	title = '{{ title[5:] }}'
 
 	function playpause(checkfocus = false) {
 		if (player.paused || player.ended) {
@@ -367,6 +370,20 @@
                     </div>`
 				}
 			})
+	}
+
+	function blacklist() {
+		fetch('/api/blacklist', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				source: source,
+				title: title,
+				episode: episode,
+			}),
+		}).then((res) => {
+			window.location.href = res.url
+		})
 	}
 
 	function closePopup() {

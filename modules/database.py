@@ -45,7 +45,7 @@ class instance:
         del self.db['videos'][target]
         self.save()
     
-    def add(self, title, episode, cover, id, description, url, status):
+    def add(self, title, episode, cover, id, description, url, status, source):
         target = f'{str(episode).zfill(5)}{title}'
         self.db['videos'][target] = {
             "id": id,
@@ -56,7 +56,8 @@ class instance:
             "status": "in queue",
             "description": description,
             "url": url,
-            "anilistStatus": status
+            "anilistStatus": status,
+            "source": source
         }
         self.save()
 
@@ -70,7 +71,7 @@ class instance:
     def cleanup(self):
         now = time.time()
         for item in list(self.db['blacklist'].keys()):
-            if now -self.db['blacklist'][item] > 604800:
+            if now -self.db['blacklist'][item] > 7776000:
                 del self.db['blacklist'][item]
         self.save()
 

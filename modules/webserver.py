@@ -279,6 +279,18 @@ class instance:
                 if not data or time.time() > data['expires']:
                     return 'The ShareKey is not valid or expired', 404
                 return send_from_directory('../public/', data['file'])
+            
+        @self.app.route('/api/blacklist', methods=['POST'])
+        @self.requireAuth()
+        def blacklist():
+            data = request.get_json()
+            source = data.get('source')
+            title = data.get('title')
+            episode = data.get('episode')
+            var.db.blacklist(source)
+            var.db.remove(title, episode)
+            var.console.info(f'Blacklisted {title} EP{episode}', variables={'source': source})
+            return redirect('/')
         
     def server(self):
         serve(self.app, host=var.config['host'], port=var.config['port'])

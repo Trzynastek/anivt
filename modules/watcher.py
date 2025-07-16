@@ -193,7 +193,7 @@ class instance:
                                         var.queueTitles.append(f'{str(item["episode"]).zfill(5)}{entry["title"]}')
                                         var.queue.append(entry)
                                         if not var.db.exists(title, item['episode']):
-                                            var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'], watchlist[index]['status'])
+                                            var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'], watchlist[index]['status'], item['link'])
                                 else:
                                     var.console.warn('"Global" episodes are currently not supported, sorry X﹏X', variables={
                                         'title': title,

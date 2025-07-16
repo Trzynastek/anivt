@@ -11,6 +11,7 @@
 		{% if enableShareKeys %}
 			<button class="getShareURL" onclick="getShareKey()">Get ShareURL</button>
 		{% endif %}
+		<button class="blacklist" onclick="blacklist()">Blacklist</button>
 	</div>
 	<p class="title">{{ title[5:] | e }}</p>
 	<p class="description">{{ video.description }}</p>
@@ -40,7 +41,8 @@
 		margin-right: 5px;
 	}
 	.anilist,
-	.getShareURL {
+	.getShareURL,
+	.blacklist {
 		padding: 10px 15px;
 		border: 1px solid var(--bd);
 		background-color: var(--sf);
