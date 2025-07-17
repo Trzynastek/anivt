@@ -187,6 +187,8 @@ class instance:
                             })
                             found = True
                             if item['episode'] > watchlist[index]['progress']:
+                                if item['link'] in var.db.blacklisted():
+                                    continue
                                 if source['per_season_episodes']:
                                     entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
                                     if f'{str(item["episode"]).zfill(5)}{entry["title"]}' not in var.queueTitles:
