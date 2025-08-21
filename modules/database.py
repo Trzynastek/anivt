@@ -71,7 +71,7 @@ class instance:
     def cleanup(self):
         now = time.time()
         for item in list(self.db['blacklist'].keys()):
-            if now -self.db['blacklist'][item] > 7776000:
+            if now - self.db['blacklist'][item] > 7776000:
                 del self.db['blacklist'][item]
         self.save()
 

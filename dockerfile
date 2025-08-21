@@ -20,7 +20,8 @@ RUN pip install --no-cache-dir \
     waitress \
     ruamel.yaml \
     "pyjwt[crypto]" \
-    colorama
+    colorama \
+    rapidfuzz
 
 WORKDIR /anivt/
 

@@ -180,7 +180,7 @@ class instance():
                 'type': type(e),
                 'message': str(e)
             })
-            var.db.update(title, episode, 'status', 'error')
+            var.db.remove(title, episode)
 
     async def convertRes(self, original, target, value):
         return value * (target / original)

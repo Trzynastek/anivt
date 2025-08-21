@@ -4,6 +4,7 @@ from datetime import datetime
 from modules import downloader
 from modules import variables as var
 from ruamel.yaml import YAML
+from rapidfuzz import fuzz
 
 yaml = YAML()
 yaml.indent(mapping=4)
@@ -179,7 +180,7 @@ class instance:
 
                         title = title.replace("'", '’')
 
-                        if normItem == normTitle:
+                        if fuzz.ratio(normItem, normTitle) >= 80:
                             var.console.debug('Title found.', variables={
                                 'title': title,
                                 'normItem': normItem,
@@ -190,6 +191,9 @@ class instance:
                                 if item['link'] in var.db.blacklisted():
                                     continue
                                 if source['per_season_episodes']:
+                                    # Limit downloading more than 6 episodes ahead of progress
+                                    if item['episode'] > (watchlist[index]['progress'] + 6):
+                                        continue
                                     entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
                                     if f'{str(item["episode"]).zfill(5)}{entry["title"]}' not in var.queueTitles:
                                         var.queueTitles.append(f'{str(item["episode"]).zfill(5)}{entry["title"]}')
