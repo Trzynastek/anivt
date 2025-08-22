@@ -16,6 +16,16 @@
 <script>
 	let lastEtagSchedule = null
 
+	async function scheduleProgress() {
+		document.querySelectorAll('.scheduleEntry').forEach((element) => {
+			const timestamp = parseInt(element.dataset.airing) * 1000
+			const airing = new Date(timestamp)
+			const now = new Date()
+			element.querySelector('.time').textContent = airing.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+			if (airing < now) element.classList.add('past')
+		})
+	}
+
 	async function refreshSchedule() {
 		const headers = lastEtagSchedule ? { 'If-None-Match': lastEtagSchedule } : {}
 		const res = await fetch('/schedule', { headers })
@@ -25,9 +35,12 @@
 		lastEtagSchedule = res.headers.get('ETag')
 		const html = await res.text()
 		document.getElementById('entries').innerHTML = html
+
+		scheduleProgress()
 	}
 
 	setInterval(refreshSchedule, 60000)
+	scheduleProgress()
 </script>
 
 <style>

@@ -1,4 +1,4 @@
-<div class="scheduleEntry {{ 'past' if entry.airing < now else '' }}">
+<div class="scheduleEntry" data-airing="{{ entry.airing }}">
 	<div class="row">
 		<p class="time">{{ datetime.fromtimestamp(entry.airing).strftime('%H:%M') }}</p>
 		<p class="episode">EP {{ entry.episode }}</p>
