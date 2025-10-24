@@ -218,6 +218,12 @@
 	.touch {
 		display: none;
 	}
+	.hideCursor {
+		cursor: none;
+	}
+	.hideCursor * {
+		cursor: none;
+	}
 
 	@media (pointer: coarse) {
 		#playerContainer:fullscreen .controls {
@@ -240,6 +246,14 @@
 	source = '{{ video.source }}'
 	episode = '{{ video.episode }}'
 	title = '{{ title[5:] }}'
+	let mouseTimer
+	let focused
+
+	playerContainer.addEventListener('mousemove', (e) => {
+		playerContainer.classList.remove('hideCursor')
+		clearTimeout(mouseTimer)
+		mouseTimer = setTimeout(() => playerContainer.classList.add('hideCursor'), 5000)
+	})
 
 	function playpause(checkfocus = false) {
 		if (player.paused || player.ended) {
