@@ -295,6 +295,7 @@
 			document.exitFullscreen()
 		} else {
 			playerContainer.requestFullscreen()
+			mouseTimer = setTimeout(() => playerContainer.classList.add('hideCursor'), 5000)
 		}
 	}
 
