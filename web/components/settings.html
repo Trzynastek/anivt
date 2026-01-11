@@ -1,0 +1,463 @@
+<div id="configActions">
+    <button id="saveConfig">Save changes</button>
+    <button id="undoConfig">Undo changes</button>
+</div>
+<div id="settings">
+    <div class="category">
+        <p class="title">Server</p>
+        <div class="setting">
+            <label for="sv_host">Host:</label>
+            <input class="cfg" inputmode='numeric' pattern='(\d{1,3}\.){3}\d{1,3}|localhost' type="text" id="sv_host">
+        </div>
+        <div class="setting">
+            <label for="sv_port">Port:</label>
+            <input class="cfg" type="number" min='1' max='65535' id="sv_port">
+        </div>
+        <div class="setting">
+            <label for="sv_logs">logs:</label>
+            <input type="checkbox" id="sv_logs">
+        </div>
+        <div class="setting">
+            <label for="sv_debug">Debug:</label>
+            <input type="checkbox" id="sv_debug">
+        </div>
+        <div class="setting">
+            <label for="sv_secret">Secret:</label>
+            <input class="cfg" type="password" pattern='.{8,}' id="sv_secret">
+        </div>
+    </div>
+    <div class="category">
+        <p class="title">AniList</p>
+        <div class="setting">
+            <label for="al_redirect">Redirect:</label>
+            <input class="cfg" pattern='https?://.+' type="text" id="al_redirect">
+        </div>
+        <div class="setting">
+            <label for="al_cid">Client ID:</label>
+            <input class="cfg" type="number" min='1' max='65535' id="al_cid">
+        </div>
+        <div class="setting">
+            <label for="al_secret">Secret:</label>
+            <input class="cfg" type="password" id="al_secret">
+        </div>
+    </div>
+    <div class="category">
+        <p class="title">Language</p>
+        <div class="setting">
+            <label for="lang_audio">Audio:</label>
+            <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_audio">
+        </div>
+        <div class="setting">
+            <label for="lang_subtitles">Subtitles:</label>
+            <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_subtitles">
+        </div>
+    </div>
+    <div class="category rss">
+        <div class="row">
+            <p class="title">RSS Feeds</p>
+            <button class="new">
+                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div class="category">
+        <div class="row">
+            <p class="title">Encoding</p>
+            <button class="new">
+                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div class="category">
+        <div class="row">
+            <p class="title">Subtitles</p>
+            <button class="new">
+                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+<style>
+    input[type='number'] {
+        appearance: textfield;
+        -moz-appearance: textfield;
+    }
+    input[type='number']::-webkit-outer-spin-button, input[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type='checkbox'] {
+        appearance: none;
+        text-align: right;
+        font-size: 1rem;
+        color: #747474;
+        margin: 0;
+        cursor: pointer;
+    }
+    input[type='checkbox']::before {
+        content: 'False';
+    }
+    input[type='checkbox']:checked::before {
+        content: 'True';
+    }
+
+    #settings {
+        display: block;
+        column-width: 350px;
+        column-gap: var(--spacing-m);
+        box-sizing: border-box;
+        width: 100%;
+    }
+    #saveConfig, #undoConfig {
+        padding: 10px 15px;
+		border: 1px solid var(--bd);
+		background-color: var(--inp);
+		border-radius: var(--rd);
+		display: flex;
+		font-weight: 700;
+		color: var(--fg);
+		box-sizing: border-box;
+		align-items: center;
+		justify-content: space-evenly;
+		text-align: center;
+		font-size: 1rem;
+		cursor: pointer;
+		height: 42px;
+        width: 150px;
+    }
+    #configActions {
+        margin-left: auto;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: var(--spacing-s);
+        visibility: hidden;
+    }
+    #saveConfig {
+        background-color: var(--positive);
+    }
+    #undoConfig {
+        background-color: var(--danger);
+    }
+
+    .main {
+        display: flex;
+        flex-direction: column;
+    }
+    .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-s);
+    }
+    .col {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-s);
+        width: 100%;
+        min-width: 0;
+    }
+    .category {
+		background-color: var(--sf);
+		border-radius: var(--rd);
+		border: 1px solid var(--bd);
+		padding: var(--spacing-m);
+		box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        height: fit-content;
+        width: 100%;
+        gap: var(--spacing-s);
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: var(--spacing-m);
+	}
+    .setting {
+        background-color: var(--inp);
+        border: 1px solid var(--bd);
+        border-radius: var(--rd);
+        padding: var(--spacing-s);
+        display: flex;
+        justify-content: space-between;
+        gap: var(--spacing-s);
+        min-width: 0;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .cfg {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        outline: none;
+        text-align: right;
+        font-size: 1rem;
+        color: #747474;
+        flex: 1;
+        min-width: 0;
+        width: 100%
+    }
+    .title {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-s);
+    }
+    .subSetting {
+        background-color: var(--inp);
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .rem, .add {
+        display: flex;
+    }
+    .listSetting > .col,
+    .listSetting > .subSetting {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+    } 
+</style>
+{% include 'popups.html' %}
+<script>
+    config = {{ config|tojson }}
+
+    oldcfg = JSON.stringify(config);
+
+    templates = {
+        "rss": `
+            <button class="rem">
+                <svg width="13" height="3" viewBox="0 0 13 3" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 1.5H11.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="col">
+                <div class="subSetting">
+                    <label for="rss_INDEX_url">URL:</label>
+                    <input class="cfg rss_url" pattern="https?://.+" type="text" id="rss_INDEX_url">
+                </div>
+                <div class="subSetting">
+                    <label for="rss_INDEX_regex">Regex:</label>
+                    <input class="cfg rss_regex" type="text" id="rss_INDEX_regex">
+                </div>
+                <div class="subSetting">
+                    <label for="rss_0_ep">Per season episodes:</label>
+                    <input type="checkbox" class="rss_ep" id="rss_INDEX_ep" checked>
+                </div>
+            </div>
+        `,
+        "enc_sub": `
+            <button class="rem">
+                <svg width="13" height="3" viewBox="0 0 13 3" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 1.5H11.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="subSetting">
+                <label>vcoded:</label>
+                <input class="cfg" type="text">
+            </div>
+        `
+    }
+
+    selectors = document.querySelectorAll('.category')
+    categories = {
+        "rss": selectors[3],
+        "encoding": selectors[4],
+        "subtitles": selectors[5]
+    }
+
+    function parseValue (value) {
+        if (value == '' || value == null) return value
+        if (isNaN(value) && /^\s+$/.test(value)) return value
+        return value.toString().includes('.') ? parseFloat(value) : parseInt(value, 10)
+    }
+
+    function bindElement (id, object, key, type = 'text') {
+        element = document.getElementById(id)
+        if (!element) return
+
+        if (type == 'checkbox') {
+            element.checked = Boolean(config[key])
+        } else {
+            element.value = object[key] ?? ''
+        }
+
+        element.addEventListener(type == 'checkbox' ? 'change' : 'input', (e) => {
+            value = type == 'checkbox' ? e.target.checked : e.target.value
+            if (element.type == 'number') value = value == '' ? null : Number(value)
+            object[key] = value
+            checkChanges()
+        })
+    }
+
+    function renderRSS () {
+        items = categories.rss.querySelectorAll('.listSetting')
+        items.forEach(element => element.remove())
+
+        config.rss.forEach((feed, index) => {
+            div = document.createElement('div')
+            div.className = 'setting listSetting'
+            div.innerHTML = templates.rss.replaceAll('rss_INDEX_', `rss_${index}_`)
+
+            urlInp = div.querySelector('.rss_url')
+            regexInp = div.querySelector('.rss_regex')
+            epInp = div.querySelector('.rss_ep')
+
+            urlInp.value = feed.url || ''
+            regexInp.value = feed.regex || ''
+            epInp.value = feed.per_season_episodes || true
+
+            urlInp.oninput = (e) => { 
+                config.rss[index].url = e.target.value
+                checkChanges()
+            }
+            regexInp.oninput = (e) => {
+                config.rss[index].regex = e.target.value
+                checkChanges()
+            }
+            epInp.oninput = (e) => {
+                config.rss[index].per_season_episodes = e.target.checked
+                checkChanges()
+            }
+
+            div.querySelector('.rem').onclick = () => {
+                config.rss.splice(index, 1)
+                renderRSS()
+                checkChanges()
+            }
+
+            categories.rss.appendChild(div)
+        })
+    }
+
+    function renderDict (container, object, renderFunction) {
+        items = container.querySelectorAll('.listSetting')
+        items.forEach(element => element.remove())
+
+        Object.keys(object).forEach(key => {
+            div = document.createElement('div')
+            div.className = 'setting listSetting'
+            div.innerHTML = templates.enc_sub
+
+            label = div.querySelector('label')
+            input = div.querySelector('input')
+            
+            label.textContent = key + ':'
+            label.setAttribute('for', key)
+            input.id = key
+            input.value = object[key]
+
+            input.oninput = (e) => { 
+                object[key] = parseValue(e.target.value)
+                checkChanges()
+            }
+
+            div.querySelector('.rem').onclick = () => {
+                delete object[key]
+                renderFunction()
+                checkChanges()
+            }
+
+            container.appendChild(div)
+        })
+    }
+
+    const renderEncoding = () => renderDict(categories.encoding, config.encoding, renderEncoding)
+    const renderSubtitles = () => renderDict(categories.subtitles, config.subtitles, renderSubtitles)
+
+    function renderAll() {
+        bindElement('sv_host', config, 'host');
+        bindElement('sv_port', config, 'port');
+        bindElement('sv_logs', config, 'logs', 'checkbox');
+        bindElement('sv_debug', config, 'debug', 'checkbox');
+        bindElement('sv_secret', config, 'secret');
+
+        bindElement('al_redirect', config.anilist, 'redirect_base');
+        bindElement('al_cid', config.anilist, 'cid');
+        bindElement('al_secret', config.anilist, 'secret');
+
+        bindElement('lang_audio', config.language, 'audio');
+        bindElement('lang_subtitles', config.language, 'subtitles');
+
+        renderRSS()
+        renderEncoding()
+        renderSubtitles()
+    }
+
+    categories.rss.querySelector('.new').addEventListener('click', () => {
+        config.rss.push({ url: '', regex: '', per_season_episodes: true })
+        renderRSS()
+        checkChanges()
+    })
+
+    categories.encoding.querySelector('.new').addEventListener('click', () => {
+        prompt("Enter key name: ").then( key => {
+            if (key == null) return
+            if (key && !config.encoding.hasOwnProperty(key)) {
+                config.encoding[key] = ""
+                renderEncoding()
+                checkChanges()
+            } else {
+                alert("Key already exists.")
+            }
+        })
+    })
+
+    categories.subtitles.querySelector('.new').addEventListener('click', () => {
+        prompt("Enter key name: ").then(key => {
+            if (key == null) return
+            if (key && !config.subtitles.hasOwnProperty(key)) {
+                config.subtitles[key] = ""
+                renderSubtitles()
+                checkChanges()
+            } else {
+                alert("Key already exists.")
+            }
+        })
+    })
+
+    document.getElementById("saveConfig").addEventListener('click', () => {
+        fetch('/api/saveConfig', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ config: config })
+        })
+        .then(res => {
+            if (res.ok) {
+                oldcfg = JSON.stringify(config)
+                renderAll()
+                checkChanges()
+            } else {
+                alert("Coudn't save changes.")
+            }
+        })
+    })
+
+    document.getElementById("undoConfig").addEventListener('click', () => {
+        config = JSON.parse(oldcfg)
+        renderAll()
+        checkChanges()
+    })
+
+    function checkChanges() {
+        button = document.getElementById("configActions")
+        if (oldcfg == JSON.stringify(config)) {
+            button.style.visibility = "hidden"
+        } else {
+            button.style.visibility = "visible"
+        }
+    }
+
+    renderAll()
+</script>

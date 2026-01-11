@@ -8,7 +8,8 @@ from jinja2 import Environment, FileSystemLoader
 from functools import wraps
 from ruamel.yaml import YAML
 
-yaml = YAML()
+yaml = YAML(typ='rt')
+yaml.preserve_quotes = True
 yaml.indent(mapping=4)
 yaml.default_flow_style = False
 
@@ -19,7 +20,7 @@ whitelist = [
 ]
 
 class instance:
-    def __init__(self):
+    def __init__(self, dev = False):
         self.app = Flask(__name__)
         self.app.template_folder = var.workdir + '/web/'
         self.app.secret_key = var.config['secret']
@@ -27,6 +28,7 @@ class instance:
         self.app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
         self.app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
         self.app.config['SESSION_COOKIE_NAME'] = "sessionToken"
+        self.dev = dev
         CORS(self.app)
         self.createRoutes()
         self.env = Environment(loader=FileSystemLoader(['web/pages', 'web/components', 'web/layouts']))
@@ -35,6 +37,9 @@ class instance:
         def decorator(f):
             @wraps(f)
             def wrapped(*args, **kwargs):
+                if self.dev:
+                    return f(*args, **kwargs)
+
                 if session.get('authenticated'):
                     return f(*args, **kwargs)
 
@@ -76,6 +81,13 @@ class instance:
                         'response': res.json()
                     })
                     await asyncio.sleep(10)
+
+    def updateConfig(self, old, new):
+        for k, v in new.items():
+            if isinstance(v, dict) and k in old:
+                self.updateConfig(old[k], v)
+            else:
+                old[k] = v
 
     def createRoutes(self):
         @self.app.route('/api/logout')
@@ -292,6 +304,29 @@ class instance:
             var.console.info(f'Blacklisted {title} EP{episode}', variables={'source': source})
             return redirect('/')
         
+        @self.app.route('/dashboard')
+        @self.requireAuth()
+        def renderSettings():
+            template = self.env.get_template('dashboard.html')
+            return template.render(config=var.config)
+        
+        @self.app.route('/api/saveConfig', methods=['POST'])
+        @self.requireAuth()
+        def saveConfig():
+            data = request.get_json()
+            update = data.get('config')
+
+            with open(var.configFile, 'r', encoding='utf-8') as f:
+                config = yaml.load(f)
+
+            self.updateConfig(config, update)
+
+            var.config = config
+            with open(var.configFile, 'w', encoding='utf-8') as f:
+                yaml.dump(config, f)
+
+            return '', 200
+
     def server(self):
         serve(self.app, host=var.config['host'], port=var.config['port'])
     

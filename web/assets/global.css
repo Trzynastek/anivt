@@ -4,11 +4,14 @@
 }
 
 :root {
-	--bg: #101010;
+	--bg: #0a0a0a;
+	--inp: #101010;
 	--fg: #d9d9d9;
 	--rd: 10px;
 	--bd: #252525;
 	--sf: #1a1a1a;
+	--danger: #8f4a4a;
+	--positive: #509050;
 	--spacing-s: 10px;
 	--spacing-m: 20px;
 	--spacing-b: 40px;

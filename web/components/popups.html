@@ -1,0 +1,113 @@
+<style>
+	#popups_overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.3);
+		backdrop-filter: blur(5);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	#popups_box {
+		background-color: var(--sf);
+		border-radius: var(--rd);
+		border: 1px solid var(--bd);
+		padding: var(--spacing-m);
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-s);
+	}
+	#popups_text {
+		font-size: 1.5rem;
+		color: var(--fg);
+		text-align: center;
+	}
+	#popups_input {
+		background-color: var(--inp);
+		border: 1px solid var(--bd);
+		border-radius: var(--rd);
+		padding: var(--spacing-s);
+		width: 100%;
+		box-sizing: border-box;
+		font-size: 1rem;
+		color: #747474;
+		outline: none;
+	}
+	#popups_button {
+		padding: 10px 15px;
+		border: 1px solid var(--bd);
+		background-color: var(--inp);
+		border-radius: var(--rd);
+		display: flex;
+		font-weight: 700;
+		color: var(--fg);
+		width: 100%;
+		box-sizing: border-box;
+		align-items: center;
+		justify-content: space-evenly;
+		text-align: center;
+		font-size: 1rem;
+		cursor: pointer;
+		height: 42px;
+	}
+</style>
+<script>
+	function prompt(text) {
+		return new Promise((resolve) => {
+			element = document.createElement('div')
+			element.id = 'popups_overlay'
+
+			element.innerHTML = `
+                <div id="popups_box">
+                    <p id="popups_text">${text}</p>
+                    <input id="popups_input" type='text'>
+                    <button id="popups_button">Confirm</button>
+                </div>
+            `
+
+			element.querySelector('#popups_button').addEventListener('click', () => {
+				resolve(document.getElementById('popups_input').value)
+				element.remove()
+			})
+
+			element.onclick = (e) => {
+				if (e.target == element) {
+					resolve(null)
+					element.remove()
+				}
+			}
+
+			document.body.appendChild(element)
+
+			const input = element.querySelector('#popups_input')
+			input.focus()
+		})
+	}
+	function alert(text) {
+		element = document.createElement('div')
+		element.id = 'popups_overlay'
+
+		element.innerHTML = `
+                <div id="popups_box">
+                    <p id="popups_text">${text}</p>
+                    <button id="popups_button">Ok</button>
+                </div>
+            `
+
+		element.querySelector('#popups_button').addEventListener('click', () => {
+			element.remove()
+		})
+
+		element.onclick = (e) => {
+			if (e.target == element) {
+				element.remove()
+			}
+		}
+
+		document.body.appendChild(element)
+	}
+</script>
