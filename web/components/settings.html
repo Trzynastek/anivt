@@ -27,6 +27,48 @@
         </div>
     </div>
     <div class="category">
+        <p class="title">Intervals</p>
+        <div class="setting">
+            <label for="it_cleanup">Cleanup interval [s]:</label>
+            <input class="cfg" type="number" min='1' id="it_cleanup">
+        </div>
+        <div class="setting">
+            <label for="it_full">Full scan interval [s]:</label>
+            <input class="cfg" type="number" min='1' id="it_full">
+        </div>
+        <div class="setting">
+            <label for="it_partial">Partial scan interval [s]:</label>
+            <input class="cfg" type="number" min='1' id="it_partial">
+        </div>
+        <div class="setting">
+            <label for="it_remove">Remove after [s]:</label>
+            <input class="cfg" type="number" min='1' id="it_remove">
+        </div>
+        <div class="setting">
+            <label for="it_dltimeout">Download timeout [s]:</label>
+            <input class="cfg" type="number" min='1' id="it_dltimeout">
+        </div>
+    </div>
+    <div class="category">
+        <p class="title">Other</p>
+        <div class="setting">
+            <label for="ot_dlretries">Download retries:</label>
+            <input class="cfg" type="number" min='1' id="ot_dlretries">
+        </div>
+        <div class="setting">
+            <label for="ot_sharekeys">Enable sharing:</label>
+            <input type="checkbox" id="ot_sharekeys">
+        </div>
+        <div class="setting">
+            <label for="ot_schedule">Update shedule once a day:</label>
+            <input type="checkbox" id="ot_schedule">
+        </div>
+        <div class="setting">
+            <label for="ot_encode">Encode when no language available:</label>
+            <input type="checkbox" id="ot_encode">
+        </div>
+    </div>
+    <div class="category">
         <p class="title">AniList</p>
         <div class="setting">
             <label for="al_redirect">Redirect:</label>
@@ -50,6 +92,14 @@
         <div class="setting">
             <label for="lang_subtitles">Subtitles:</label>
             <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_subtitles">
+        </div>
+        <div class="setting">
+            <label for="lang_fallback_audio">Fallback audio:</label>
+            <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_fallback_audio">
+        </div>
+        <div class="setting">
+            <label for="lang_fallback_subtitles">Fallback subtitles:</label>
+            <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_fallback_subtitles">
         </div>
     </div>
     <div class="category rss">
@@ -219,8 +269,9 @@
         width: 100%;
         box-sizing: border-box;
     }
-    .rem, .add {
+    .rem, .new {
         display: flex;
+        cursor: pointer;
     }
     .listSetting > .col,
     .listSetting > .subSetting {
@@ -272,9 +323,9 @@
 
     selectors = document.querySelectorAll('.category')
     categories = {
-        "rss": selectors[3],
-        "encoding": selectors[4],
-        "subtitles": selectors[5]
+        "rss": selectors[5],
+        "encoding": selectors[6],
+        "subtitles": selectors[7]
     }
 
     function parseValue (value) {
@@ -389,6 +440,18 @@
 
         bindElement('lang_audio', config.language, 'audio');
         bindElement('lang_subtitles', config.language, 'subtitles');
+        bindElement('lang_fallback_audio', config.language_fallback, 'audio');
+        bindElement('lang_fallback_subtitles', config.language_fallback, 'subtitles');
+        
+        bindElement('it_cleanup', config, 'cleanup_interval');
+        bindElement('it_full', config, 'full_interval');
+        bindElement('it_partial', config, 'partial_interval');
+        bindElement('it_remove', config, 'remove_after');
+        bindElement('it_dltimeout', config, 'download_timeout');
+        bindElement('ot_dlretries', config, 'download_retries');
+        bindElement('ot_schedule', config, 'update_schedule_once_a_day');
+        bindElement('ot_encode', config, 'encode_when_no_language');
+        bindElement('ot_sharekeys', config, 'enable_shareKeys');
 
         renderRSS()
         renderEncoding()
