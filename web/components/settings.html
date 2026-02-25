@@ -328,10 +328,12 @@
         "subtitles": selectors[7]
     }
 
-    function parseValue (value) {
-        if (value == '' || value == null) return value
-        if (isNaN(value) && /^\s+$/.test(value)) return value
-        return value.toString().includes('.') ? parseFloat(value) : parseInt(value, 10)
+    function parseValue(value) {
+        if (value === '' || value === null) return value;
+        if (isNaN(value) || value.toString().trim() === '') {
+            return value;
+        }
+        return value.toString().includes('.') ? parseFloat(value) : parseInt(value, 10);
     }
 
     function bindElement (id, object, key, type = 'text') {
