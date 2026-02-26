@@ -9,3 +9,8 @@ services:
             - ./storage/mp4:/anivt/public/mp4
             - ./logs:/anivt/logs
             - ./configs:/anivt/configs
+        # Uncomment for quicksync support
+        # devices:
+        #   - /dev/dri:/dev/dri
+        # group_add:
+        #   - "103"

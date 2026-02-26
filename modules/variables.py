@@ -47,6 +47,7 @@ default = CommentedMap({
         "subtitles": "eng"
     },
     "encode_when_no_language": False,
+    "quicksync": False,
     "encoding": {
         "vcodec": "libx264",
         "pix_fmt": "yuv420p",
@@ -143,6 +144,13 @@ def addComments(content):
         'When disabled the episode will not be encoded when neither the preferred language nor the fallback language is found.\n'
         ' \n'
         'When this is enabled the episode will fallback to first available stream and encode it.\n'
+        'Default: False'
+    ))
+    content.yaml_set_comment_before_after_key('quicksync', before=(
+        '\n'
+        'When enabled the encoding will use Intel QuickSync.\n'
+        ' \n'
+        'Only works when an Intel QuickSync GPU is passed through in the docker compose.\n'
         'Default: False'
     ))
     content.yaml_set_comment_before_after_key('language', before=(
