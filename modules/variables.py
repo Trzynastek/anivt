@@ -48,6 +48,17 @@ default = CommentedMap({
     },
     "encode_when_no_language": False,
     "quicksync": False,
+    "quicksync_options": {
+        "vcodec": "h264_qsv",
+        "preset": "veryslow",
+        "pix_fmt": "nv12",
+        "global_quality": "17",
+        "rc_mode": "icq",
+        "profile": "high",
+        "acodec": "aac",
+        "ac": "2",
+        "threads": "0"
+    }
     "encoding": {
         "vcodec": "libx264",
         "pix_fmt": "yuv420p",
@@ -152,6 +163,13 @@ def addComments(content):
         ' \n'
         'Only works when an Intel QuickSync GPU is passed through in the docker compose.\n'
         'Default: False'
+    ))
+    content.yaml_set_comment_before_after_key('quicksync_options', before=(
+        '\n'
+        'Encoding options for ffmpeg when using quicksync.\n'
+        ' \n'
+        'Refer to the official documentation\n'
+        'https://ffmpeg.org/ffmpeg-all.html#QSV-Encoders'
     ))
     content.yaml_set_comment_before_after_key('language', before=(
         '\n'

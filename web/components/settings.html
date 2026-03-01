@@ -67,6 +67,10 @@
             <label for="ot_encode">Encode when no language available:</label>
             <input type="checkbox" id="ot_encode">
         </div>
+        <div class="setting">
+            <label for="ot_quicksync">Use Intel QuickSync:</label>
+            <input type="checkbox" id="ot_quicksync">
+        </div>
     </div>
     <div class="category">
         <p class="title">AniList</p>
@@ -127,6 +131,17 @@
     <div class="category">
         <div class="row">
             <p class="title">Subtitles</p>
+            <button class="new">
+                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div class="category">
+        <div class="row">
+            <p class="title">QuickSync Options</p>
             <button class="new">
                 <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
@@ -325,7 +340,8 @@
     categories = {
         "rss": selectors[5],
         "encoding": selectors[6],
-        "subtitles": selectors[7]
+        "subtitles": selectors[7],
+        "quicksync_options": selectors[8]
     }
 
     function parseValue(value) {
@@ -427,6 +443,7 @@
     }
 
     const renderEncoding = () => renderDict(categories.encoding, config.encoding, renderEncoding)
+    const renderQuicksync= () => renderDict(categories.quicksync_options, config.quicksync_options, renderQuicksync)
     const renderSubtitles = () => renderDict(categories.subtitles, config.subtitles, renderSubtitles)
 
     function renderAll() {
@@ -451,12 +468,14 @@
         bindElement('it_remove', config, 'remove_after');
         bindElement('it_dltimeout', config, 'download_timeout');
         bindElement('ot_dlretries', config, 'download_retries');
-        bindElement('ot_schedule', config, 'update_schedule_once_a_day');
-        bindElement('ot_encode', config, 'encode_when_no_language');
-        bindElement('ot_sharekeys', config, 'enable_shareKeys');
+        bindElement('ot_schedule', config, 'update_schedule_once_a_day', 'checkbox');
+        bindElement('ot_encode', config, 'encode_when_no_language', 'checkbox');
+        bindElement('ot_sharekeys', config, 'enable_shareKeys', 'checkbox');
+        bindElement('ot_quicksync', config, 'quicksync', 'checkbox');
 
         renderRSS()
         renderEncoding()
+        renderQuicksync()
         renderSubtitles()
     }
 
@@ -472,6 +491,19 @@
             if (key && !config.encoding.hasOwnProperty(key)) {
                 config.encoding[key] = ""
                 renderEncoding()
+                checkChanges()
+            } else {
+                alert("Key already exists.")
+            }
+        })
+    })
+
+    categories.quicksync_options.querySelector('.new').addEventListener('click', () => {
+        prompt("Enter key name: ").then( key => {
+            if (key == null) return
+            if (key && !config.quicksync_options.hasOwnProperty(key)) {
+                config.quicksync_options[key] = ""
+                renderQuicksync()
                 checkChanges()
             } else {
                 alert("Key already exists.")
@@ -516,6 +548,14 @@
     })
 
     function checkChanges() {
+        if (config.quicksync) {
+            categories.encoding.style.display = "none";
+            categories.quicksync_options.style.display = "flex";
+        } else {
+            categories.encoding.style.display = "flex";
+            categories.quicksync_options.style.display = "none";
+        }
+
         button = document.getElementById("configActions")
         if (oldcfg == JSON.stringify(config)) {
             button.style.visibility = "hidden"
@@ -525,4 +565,5 @@
     }
 
     renderAll()
+    checkChanges()
 </script>

@@ -280,14 +280,9 @@ class instance():
         })
 
         fsub = shlex.quote(sub.replace(':', '\\:'))
-        
-        encode_options = var.config['encoding'].copy()
-
 
         if var.config.get('quicksync', False):
             var.console.debug("Using QuickSync")
-            encode_options.pop('vcodec', None) 
-            encode_options.pop('vf', None)
 
             ffmpeg = (
                 FFmpeg()
@@ -300,11 +295,10 @@ class instance():
                 )
                 .output(
                     out,
-                    vf=f"hwdownload,format=nv12,subtitles={fsub}",
-                    vcodec="h264_qsv",
+                    vf=f"hwdownload,format=nv12,subtitles={fsub},hwupload,format=qsv",
                     movflags="+faststart",
                     map=mappings,
-                    **encode_options
+                    **var.config['quicksync_options']
                 )
             )
         else:
@@ -318,7 +312,7 @@ class instance():
                     vf=f"subtitles={fsub}",
                     movflags="+faststart",
                     map=mappings,
-                    **encode_options
+                    **var.config['encoding']
                 )
             )
 
