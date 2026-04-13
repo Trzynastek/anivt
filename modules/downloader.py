@@ -295,7 +295,7 @@ class instance():
                 )
                 .output(
                     out,
-                    vf=f"hwdownload,format=nv12,subtitles={fsub},hwupload,format=qsv",
+                    vf=f"vpp_qsv=format=nv12,hwdownload,format=nv12,subtitles={fsub},hwupload,format=qsv",
                     movflags="+faststart",
                     map=mappings,
                     **var.config['quicksync_options']
