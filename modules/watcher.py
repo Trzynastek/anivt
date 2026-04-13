@@ -180,7 +180,7 @@ class instance:
 
                         title = title.replace("'", '’')
 
-                        if fuzz.ratio(normItem, normTitle) >= 80 and fuzz.token_sort_ratio(normItem, normTitle) >= 80:
+                        if fuzz.ratio(normItem, normTitle) >= 85 and fuzz.token_sort_ratio(normItem, normTitle) >= 85:
                             var.console.debug('Title found.', variables={
                                 'title': title,
                                 'normItem': normItem,
