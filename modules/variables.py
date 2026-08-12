@@ -58,7 +58,7 @@ default = CommentedMap({
         "acodec": "aac",
         "ac": "2",
         "threads": "0"
-    }
+    },
     "encoding": {
         "vcodec": "libx264",
         "pix_fmt": "yuv420p",
@@ -68,6 +68,7 @@ default = CommentedMap({
         "ac": 2,
         "threads": 0
     },
+    "vf_extra": "",
     "subtitles": {
         "Fontname": "Roboto Medium",
         "Fontsize": 36,
@@ -189,6 +190,13 @@ def addComments(content):
     content.yaml_set_comment_before_after_key('encoding', before=(
         '\n'
         'Encoding options for ffmpeg.\n'
+        ' \n'
+        'Refer to the official documentation\n'
+        'https://www.ffmpeg.org'
+    ))
+    content.yaml_set_comment_before_after_key('vf_extra', before=(
+        '\n'
+        'Additional vf arguments for the encoding step.\n'
         ' \n'
         'Refer to the official documentation\n'
         'https://www.ffmpeg.org'

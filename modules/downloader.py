@@ -280,6 +280,7 @@ class instance():
         })
 
         fsub = shlex.quote(sub.replace(':', '\\:'))
+        vf_extra = var.config.get('vf_extra', '')
 
         if var.config.get('quicksync', False):
             var.console.debug("Using QuickSync")
@@ -295,7 +296,7 @@ class instance():
                 )
                 .output(
                     out,
-                    vf=f"vpp_qsv=format=nv12,hwdownload,format=nv12,subtitles={fsub},hwupload,format=qsv",
+                    vf_filters = f"vpp_qsv=format=nv12,hwdownload,format=nv12,subtitles={fsub}{f',{vf_extra}' if vf_extra else ''},hwupload,format=qsv",
                     movflags="+faststart",
                     map=mappings,
                     **var.config['quicksync_options']
@@ -309,7 +310,7 @@ class instance():
                 )
                 .output(
                     out,
-                    vf=f"subtitles={fsub}",
+                    vf=f"subtitles={fsub}{f',{vf_extra}' if vf_extra else ''}",
                     movflags="+faststart",
                     map=mappings,
                     **var.config['encoding']
