@@ -296,7 +296,7 @@ class instance():
                 )
                 .output(
                     out,
-                    vf_filters = f"vpp_qsv=format=nv12,hwdownload,format=nv12,subtitles={fsub}{f',{vf_extra}' if vf_extra else ''},hwupload,format=qsv",
+                    vf = f"vpp_qsv=format=nv12,hwdownload,format=nv12,subtitles={fsub}{f',{vf_extra}' if vf_extra else ''},hwupload,format=qsv",
                     movflags="+faststart",
                     map=mappings,
                     **var.config['quicksync_options']
