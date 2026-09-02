@@ -33,9 +33,13 @@ class instance:
             if res.status_code == 200:
                 success = True
             else:
+                try:
+                    body = res.json()
+                except requests.exceptions.JSONDecodeError:
+                    body = res.text[:300]
                 var.console.warn("Couldn't get the watchlist. Retrying in 10s", variables={
                     'status code': res.status_code,
-                    'response': res.json()
+                    'response': body
                 })
                 await asyncio.sleep(10)
 
@@ -248,7 +252,11 @@ class instance:
             if var.db.exists(item['title'], item['episode']):
                 if var.db.read(item['title'], item['episode'], 'status') != 'ready':
                     await self.dl.process(item['title'], item['episode'], item['magnet'])
-                    var.queue.remove(item)
+            var.queue.remove(item)
+            if not var.db.exists(item['title'], item['episode']):
+                key = f'{str(item["episode"]).zfill(5)}{item["title"]}'
+                if key in var.queueTitles:
+                    var.queueTitles.remove(key)
 
     async def cleanup(self):
         var.console.debug('Running cleanup.')
