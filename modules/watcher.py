@@ -194,56 +194,14 @@ class instance:
                             if item['episode'] > watchlist[index]['progress']:
                                 if item['link'] in var.db.blacklisted():
                                     continue
-                                if source['per_season_episodes']:
-                                    # Limit downloading more than 6 episodes ahead of progress
-                                    if item['episode'] > (watchlist[index]['progress'] + 6):
-                                        continue
-                                    entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
-                                    if f'{str(item["episode"]).zfill(5)}{entry["title"]}' not in var.queueTitles:
-                                        var.queueTitles.append(f'{str(item["episode"]).zfill(5)}{entry["title"]}')
-                                        var.queue.append(entry)
-                                        if not var.db.exists(title, item['episode']):
-                                            var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'], watchlist[index]['status'], item['link'])
-                                else:
-                                    var.console.warn('"Global" episodes are currently not supported, sorry X﹏X', variables={
-                                        'title': title,
-                                        'episode': item['episode']
-                                    })
-                                    # query = f'{{ Page {{ media(search: "{title}", type: ANIME) {{ id title {{ romaji }} relations {{ nodes {{ episodes }} }} }} }} }}'
-                                    # res = requests.post(
-                                    #     'https://graphql.anilist.co',
-                                    #     headers = {
-                                    #         'Content-Type': 'application/json',
-                                    #         'Accept': 'application/json'
-                                    #     },
-                                    #     json = {'query': query}
-                                    # )
-
-                                    # data = res.json()
-                                    # nodes = data['data']['Page']['media'][0]['relations']['nodes']
-                                    # episodes = 0
-
-                                    # if len(nodes) > 0:
-                                    #     for node in nodes:
-                                    #         if node['episodes'] != None:
-                                    #             episodes += node['episodes']
-                                    # else:
-                                    #     episodes = 0
-                                    # if item['episode'] > episodes:
-                                    #     episode = item['episode'] - episodes
-                                    #     if episode > watchlist[index]['progress']:
-                                    #         entry = {'title': title, 'episode': episode, 'magnet': item['link']}
-                                    #         if f'{str(episode).zfill(5)}{entry["title"]}' not in var.queueTitles:
-                                    #             var.queueTitles.append(f'{str(episode).zfill(5)}{entry["title"]}')
-                                    #             var.queue.append(entry)
-                                    #             if not var.db.exists(title, episode):
-                                    #                 var.db.add(title, episode, watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'])
-                                    # var.console.debug('Episodes coversion', variables={
-                                    #     'nodes': nodes,
-                                    #     'total episodes': episodes,
-                                    #     'converted episode': episode,
-                                    #     'original episode': item['episode']
-                                    # })
+                                if item['episode'] > (watchlist[index]['progress'] + var.config['download_ahead']):
+                                    continue
+                                entry = {'title': title, 'episode': item['episode'], 'magnet': item['link']}
+                                if f'{str(item["episode"]).zfill(5)}{entry["title"]}' not in var.queueTitles:
+                                    var.queueTitles.append(f'{str(item["episode"]).zfill(5)}{entry["title"]}')
+                                    var.queue.append(entry)
+                                    if not var.db.exists(title, item['episode']):
+                                        var.db.add(title, item['episode'], watchlist[index]['cover'], watchlist[index]['id'], watchlist[index]['description'], watchlist[index]['url'], watchlist[index]['status'], item['link'])
         if not partial:
             var.console.debug('Check finished.', variables={
                 'queue': var.queue

@@ -2,6 +2,7 @@ from modules import database, console
 import os, json
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
+import secrets
 
 yaml = YAML()
 yaml.indent(mapping=4)
@@ -24,7 +25,7 @@ oldConfig = f'{configs}/config.json'
 configFile = f'{configs}/config.yml'
 
 default = CommentedMap({
-    "secret": "SecureSecretKey",
+    "secret": secrets.token_hex(32),
     "host": "0.0.0.0",
     "port": "7980",
     "cleanup_interval": 3600,
@@ -37,6 +38,7 @@ default = CommentedMap({
     "logs": True,
     "enable_shareKeys": True,
     "update_schedule_once_a_day": True,
+    "download_ahead": 6,
     "rss": [],
     "language": {
         "audio": "jpn",
@@ -88,8 +90,7 @@ def addComments(content):
         '\n'
         'Secret used for flask sessions.\n'
         ' \n'
-        'Set it to something long and hard to guess.\n'
-        'You can also use a password generator such as: https://1password.com/password-generator'
+        'Automatically generated.'
     ))
     content.yaml_set_comment_before_after_key('cleanup_interval', before=(
         '\n'
@@ -142,6 +143,12 @@ def addComments(content):
         'When this is disabled, the updates will happen every hour.\n'
         'Default: True'
     ))
+    content.yaml_set_comment_before_after_key('download_ahead', before=(
+        '\n'
+        'Maximum amount of episdoes ahead of the currently watched one to download.\n'
+        ' \n'
+        'Default: 6'
+    ))
     content.yaml_set_comment_before_after_key('rss', before=(
         '\n'
         'List of RSS feeds to check for episodes.\n'
@@ -149,7 +156,8 @@ def addComments(content):
         'Format:\n'
         "- url: 'Url to a RSS feed with torrent files.'\n"
         "  regex: 'Regex matching two groups: title and episode number.'\n"
-        '  per_season_episodes: false / true'
+        ' \n'
+        'WARNING: The source must number episodes by seasons e.g. S4E15 not E70.'
     ))
     content.yaml_set_comment_before_after_key('encode_when_no_language', before=(
         '\n'
@@ -281,5 +289,15 @@ if missing:
     with open(configFile, 'w') as f:
         yaml.dump(update, f)
 
-console = console.instance(config['debug'], config['logs'])
+env_anilist_redirect = os.getenv("ANILIST_REDIRECT")
+if env_anilist_redirect:
+    config["anilist"]["redirect_base"] = env_anilist_redirect
+env_anilist_cid = os.getenv("ANILIST_CID")
+if env_anilist_cid:
+    config["anilist"]["cid"] = env_anilist_cid
+env_anilist_secret = os.getenv("ANILIST_SECRET")
+if env_anilist_secret:
+    config["anilist"]["secret"] = env_anilist_secret
+
+console = console.instance(workdir, config['debug'], config['logs'])
 db = database.instance(configs)

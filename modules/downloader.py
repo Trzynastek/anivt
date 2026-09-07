@@ -24,7 +24,7 @@ class instance():
                 + '&tr=' + metadata[b'announce'].decode()\
                 + '&xl=' + str(metadata[b'info'][b'length'])
 
-    async def patchSubtiles(self, inp, sub):
+    async def patchSubtiles(self, inp, sub, magnet):
         ffprobe = FFmpeg(executable="ffprobe").input(
             inp,
             print_format="json",
@@ -51,6 +51,7 @@ class instance():
                     'mappings': mappings,
                     'encode_when_no_language': var.config['encode_when_no_language']
                 })
+                var.db.blacklist(magnet)
                 return False
 
         ffmpeg = (
@@ -146,7 +147,7 @@ class instance():
                 if not os.path.exists(inp):
                     await self.download(title, episode, magnet, dl, inp)
                 if not os.path.exists(sub):
-                    subtitlesOk = await self.patchSubtiles(inp, sub)
+                    subtitlesOk = await self.patchSubtiles(inp, sub, magnet)
                 else:
                     subtitlesOk = True
                 if not subtitlesOk:
@@ -159,7 +160,7 @@ class instance():
                     var.db.remove(title, episode)
                     var.db.blacklist(magnet)
                     return
-                encodeOk = await self.encode(title, episode, inp, out, sub)
+                encodeOk = await self.encode(title, episode, inp, out, sub, magnet)
                 if not encodeOk:
                     var.console.info('Processing aborted - no language', variables={
                         'reason': 'Skipping beacause of: no audio language found',
@@ -193,7 +194,7 @@ class instance():
         while True:
             session = lt.session()
             params = {
-                'save_path': './mkv/',
+                'save_path': var.workdir + '/mkv/',
                 'url': magnet
             }
             torrent = session.add_torrent(params)
@@ -233,7 +234,7 @@ class instance():
                 })
 
 
-    async def encode(self, title, episode, inp, out, sub):
+    async def encode(self, title, episode, inp, out, sub, magnet):
         var.console.debug('Encoding.')
         var.db.update(title, episode, 'status', 'encoding')
 
@@ -273,6 +274,7 @@ class instance():
                     'mappings': mappings,
                     'encode_when_no_language': var.config['encode_when_no_language']
                 })
+                var.db.blacklist(magnet)
                 return False
         
         var.console.debug('Mappings assigned', variables={

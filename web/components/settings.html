@@ -1,160 +1,230 @@
-<div id="configActions">
-    <button id="saveConfig">Save changes</button>
-    <button id="undoConfig">Undo changes</button>
+
+<div id="overview">
+    <a href="#general">General</a>
+    <a href="#intervals">Intervals</a>
+    <a href="#encoding">Encoding</a>
+    <a href="#language">Language</a>
+    <a href="#subtitles">Subtitles</a>
+    <a href="#rss">RSS Feeds</a>
+    <a href="#anilist">AniList</a>
+    <div id="configActions">
+        <button id="saveConfig">Save changes</button>
+        <button id="undoConfig">Undo changes</button>
+    </div>
 </div>
 <div id="settings">
-    <div class="category">
-        <p class="title">Server</p>
-        <div class="setting">
-            <label for="sv_host">Host:</label>
-            <input class="cfg" inputmode='numeric' pattern='(\d{1,3}\.){3}\d{1,3}|localhost' type="text" id="sv_host">
+        <div class="category" id="general">
+            <p class="title">Server</p>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="sv_host">Host</label>
+                </div>
+                <input class="cfg" inputmode='numeric' pattern='(\d{1,3}\.){3}\d{1,3}|localhost' type="text" id="sv_host">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="sv_port">Port</label>
+                </div>
+                <input class="cfg" type="number" min='1' max='65535' id="sv_port">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="sv_logs">logs</label>
+                </div>
+                <input type="checkbox" id="sv_logs">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="sv_debug">Debug</label>
+                </div>
+                <input type="checkbox" id="sv_debug">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="sv_secret">Secret</label>
+                </div>
+                <input class="cfg" type="password" pattern='.{8,}' id="sv_secret">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="ot_dlretries">Download retries</label>
+                </div>
+                <input class="cfg" type="number" min='1' id="ot_dlretries">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="ot_sharekeys">Enable sharing</label>
+                </div>
+                <input type="checkbox" id="ot_sharekeys">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="ot_download_ahead">Download ahead</label>
+                </div>
+                <input class="cfg" type="number" min="0" id="ot_download_ahead">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="ot_schedule">Update shedule once a day</label>
+                </div>
+                <input type="checkbox" id="ot_schedule">
+            </div>
         </div>
-        <div class="setting">
-            <label for="sv_port">Port:</label>
-            <input class="cfg" type="number" min='1' max='65535' id="sv_port">
+        <div class="category" id="intervals">
+            <p class="title">Intervals</p>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="it_cleanup">Cleanup interval [s]</label>
+                </div>
+                <input class="cfg" type="number" min='1' id="it_cleanup">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="it_full">Full scan interval [s]</label>
+                </div>
+                <input class="cfg" type="number" min='1' id="it_full">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="it_partial">Partial scan interval [s]</label>
+                </div>
+                <input class="cfg" type="number" min='1' id="it_partial">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="it_remove">Remove after [s]</label>
+                </div>
+                <input class="cfg" type="number" min='1' id="it_remove">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="it_dltimeout">Download timeout [s]</label>
+                </div>
+                <input class="cfg" type="number" min='1' id="it_dltimeout">
+            </div>
         </div>
-        <div class="setting">
-            <label for="sv_logs">logs:</label>
-            <input type="checkbox" id="sv_logs">
+        <div class="category" id="anilist">
+            <p class="title">AniList</p>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="al_redirect">Redirect</label>
+                </div>
+                <input class="cfg" pattern='https?://.+' type="text" id="al_redirect">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="al_cid">Client ID</label>
+                </div>
+                <input class="cfg" type="number" min='1' max='65535' id="al_cid">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="al_secret">Secret</label>
+                </div>
+                <input class="cfg" type="password" id="al_secret">
+            </div>
         </div>
-        <div class="setting">
-            <label for="sv_debug">Debug:</label>
-            <input type="checkbox" id="sv_debug">
+        <div class="category" id="language">
+            <p class="title">Language</p>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="lang_audio">Audio</label>
+                </div>
+                <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_audio">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="lang_subtitles">Subtitles</label>
+                </div>
+                <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_subtitles">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="lang_fallback_audio">Fallback audio</label>
+                </div>
+                <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_fallback_audio">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="lang_fallback_subtitles">Fallback subtitles</label>
+                </div>
+                <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_fallback_subtitles">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="ot_encode">Encode when no language available</label>
+                </div>
+                <input type="checkbox" id="ot_encode">
+            </div>
         </div>
-        <div class="setting">
-            <label for="sv_secret">Secret:</label>
-            <input class="cfg" type="password" pattern='.{8,}' id="sv_secret">
+        <div class="category rss" id="rss">
+            <div class="row">
+                <p class="title">RSS Feeds</p>
+                <button class="new">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="rssFields"></div>
         </div>
-    </div>
-    <div class="category">
-        <p class="title">Intervals</p>
-        <div class="setting">
-            <label for="it_cleanup">Cleanup interval [s]:</label>
-            <input class="cfg" type="number" min='1' id="it_cleanup">
-        </div>
-        <div class="setting">
-            <label for="it_full">Full scan interval [s]:</label>
-            <input class="cfg" type="number" min='1' id="it_full">
-        </div>
-        <div class="setting">
-            <label for="it_partial">Partial scan interval [s]:</label>
-            <input class="cfg" type="number" min='1' id="it_partial">
-        </div>
-        <div class="setting">
-            <label for="it_remove">Remove after [s]:</label>
-            <input class="cfg" type="number" min='1' id="it_remove">
-        </div>
-        <div class="setting">
-            <label for="it_dltimeout">Download timeout [s]:</label>
-            <input class="cfg" type="number" min='1' id="it_dltimeout">
-        </div>
-    </div>
-    <div class="category">
-        <p class="title">Other</p>
-        <div class="setting">
-            <label for="ot_dlretries">Download retries:</label>
-            <input class="cfg" type="number" min='1' id="ot_dlretries">
-        </div>
-        <div class="setting">
-            <label for="ot_sharekeys">Enable sharing:</label>
-            <input type="checkbox" id="ot_sharekeys">
-        </div>
-        <div class="setting">
-            <label for="ot_schedule">Update shedule once a day:</label>
-            <input type="checkbox" id="ot_schedule">
-        </div>
-        <div class="setting">
-            <label for="ot_encode">Encode when no language available:</label>
-            <input type="checkbox" id="ot_encode">
-        </div>
-        <div class="setting">
-            <label for="ot_quicksync">Use Intel QuickSync:</label>
-            <input type="checkbox" id="ot_quicksync">
-        </div>
-    </div>
-    <div class="category">
-        <p class="title">AniList</p>
-        <div class="setting">
-            <label for="al_redirect">Redirect:</label>
-            <input class="cfg" pattern='https?://.+' type="text" id="al_redirect">
-        </div>
-        <div class="setting">
-            <label for="al_cid">Client ID:</label>
-            <input class="cfg" type="number" min='1' max='65535' id="al_cid">
-        </div>
-        <div class="setting">
-            <label for="al_secret">Secret:</label>
-            <input class="cfg" type="password" id="al_secret">
-        </div>
-    </div>
-    <div class="category">
-        <p class="title">Language</p>
-        <div class="setting">
-            <label for="lang_audio">Audio:</label>
-            <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_audio">
-        </div>
-        <div class="setting">
-            <label for="lang_subtitles">Subtitles:</label>
-            <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_subtitles">
-        </div>
-        <div class="setting">
-            <label for="lang_fallback_audio">Fallback audio:</label>
-            <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_fallback_audio">
-        </div>
-        <div class="setting">
-            <label for="lang_fallback_subtitles">Fallback subtitles:</label>
-            <input class="cfg" pattern='[a-zA-Z]{2,3}' type="text" id="lang_fallback_subtitles">
-        </div>
-    </div>
-    <div class="category rss">
-        <div class="row">
-            <p class="title">RSS Feeds</p>
-            <button class="new">
-                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </div>
-    </div>
-    <div class="category">
-        <div class="row">
+        <div class="category" id="encoding">
             <p class="title">Encoding</p>
-            <button class="new">
-                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-            </button>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="ec_vf">Additional vf arguments</label>
+                </div>
+                <input type="text" id="ec_vf" class="cfg">
+            </div>
+            <div class="setting">
+                <div class="settingInfo">
+                    <label for="ec_quicksync">Use Intel QuickSync</label>
+                </div>
+                <input type="checkbox" id="ec_quicksync">
+            </div>
+            <div id="encodingSf">
+                <div class="row topborder">
+                    <p>Encoder options</p>
+                    <button class="new">
+                        <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="encodingQs">
+                <div class="row topborder">
+                    <p>Encoder options</p>
+                    <button class="new">
+                        <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>  
+            </div>
         </div>
-    </div>
-    <div class="category">
-        <div class="row">
-            <p class="title">Subtitles</p>
-            <button class="new">
-                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-            </button>
+        <div class="category" id="subtitles">
+            <div class="row">
+                <p class="title">Subtitles</p>
+                <button class="new">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-    </div>
-    <div class="category">
-        <div class="row">
-            <p class="title">QuickSync Options</p>
-            <button class="new">
-                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.5 8.5L15.5 8.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M8.5 1.5L8.5 15.5" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </div>
-    </div>
 </div>
 <style>
     input[type='number'] {
         appearance: textfield;
         -moz-appearance: textfield;
+        border-radius: var(--rd);
+        border: 1px solid var(--bd);
+        background-color: var(--inp);
     }
     input[type='number']::-webkit-outer-spin-button, input[type='number']::-webkit-inner-spin-button {
         -webkit-appearance: none;
@@ -162,23 +232,37 @@
     }
     input[type='checkbox'] {
         appearance: none;
-        text-align: right;
-        font-size: 1rem;
-        color: #747474;
-        margin: 0;
+        width: 39px; height: 23px;
+        border-radius: 20px;
+        background: #303030;
+        position: relative;
         cursor: pointer;
+        transition: .15s;
+        flex-shrink: 0;
     }
     input[type='checkbox']::before {
-        content: 'False';
+        content: '';
+        width: 17px; height: 17px;
+        position: absolute; top: 3px; left: 3px;
+        border-radius: 50%;
+        background: #888;
+        transition: .15s;
     }
-    input[type='checkbox']:checked::before {
-        content: 'True';
+    input[type='checkbox']:checked { 
+        background: #7d7dff; 
+    }
+    input[type='checkbox']:checked::before { 
+        left: 19px; background: #fff; 
+    }
+    input[type='text'], input[type='password'] {
+        border-radius: var(--rd);
+        border: 1px solid var(--bd);
+        background-color: var(--inp);
     }
 
     #settings {
-        display: block;
-        column-width: 350px;
-        column-gap: var(--spacing-m);
+        display: flex;
+        flex-direction: column;
         box-sizing: border-box;
         width: 100%;
     }
@@ -202,10 +286,11 @@
     #configActions {
         margin-left: auto;
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         flex-wrap: nowrap;
         gap: var(--spacing-s);
         visibility: hidden;
+        margin-top: var(--spacing-m);
     }
     #saveConfig {
         background-color: var(--positive);
@@ -213,10 +298,33 @@
     #undoConfig {
         background-color: var(--danger);
     }
-
-    .main {
+    #overview {
+        position: sticky;
+        top: 100px;
+        align-self: start;
         display: flex;
         flex-direction: column;
+    }
+    #overview a {
+        padding: 9px 11px;
+        border-radius: 7px;
+        color: #858585;
+        font-size: .92rem;
+    }
+    #overview a:hover, #overview a.active { 
+        background: #7d7dff; 
+        color: #fff;
+    }
+    #encodingQs, #encodingSf {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main {
+        display: grid;
+        grid-template-columns: 150px 60vw;
+        grid-template-rows: auto;
+        gap: var(--spacing-m);
     }
     .row {
         display: flex;
@@ -241,52 +349,84 @@
         flex-direction: column;
         height: fit-content;
         width: 100%;
-        gap: var(--spacing-s);
         break-inside: avoid;
         page-break-inside: avoid;
         margin-bottom: var(--spacing-m);
+        scroll-margin-top: 100px;
 	}
     .setting {
-        background-color: var(--inp);
-        border: 1px solid var(--bd);
-        border-radius: var(--rd);
-        padding: var(--spacing-s);
-        display: flex;
-        justify-content: space-between;
-        gap: var(--spacing-s);
-        min-width: 0;
+        display: grid;
+        grid-template-columns: minmax(0,1fr) 250px;
+        gap: 30px;
         align-items: center;
+        padding: 16px 0;
         width: 100%;
         box-sizing: border-box;
+        min-width: 0;
+    }
+    .setting > input[type='checkbox'] {
+        justify-self: end;
+    }
+    .setting:last-child { border-bottom: 0; }
+    .settingInfo { 
+        display: flex; 
+        flex-direction: column; 
+        min-width: fit-content; 
+    }
+    .settingInfo .description {
+        color: var(--dim, #5e5e5e);
+        font-size: .8rem;
+        line-height: 1.4;
+        margin-top: 4px;
+    }
+    .setting.listSetting {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--spacing-s);
     }
     .cfg {
-        background-color: transparent;
-        border: none;
-        padding: 0;
-        outline: none;
-        text-align: right;
-        font-size: 1rem;
-        color: #747474;
-        flex: 1;
+        width: 100%;
         min-width: 0;
-        width: 100%
+        border: 1px solid #303030;
+        background-color: var(--inp);
+        border-radius: 7px;
+        padding: 10px 11px;
+        outline: none;
+        font-size: 1rem;
+        color: var(--fg);
+        box-sizing: border-box;
     }
+    .cfg:focus { border-color: #7d7dff; box-shadow: 0 0 0 3px #7d7dff22; }
     .title {
         font-size: 1.5rem;
         margin-bottom: var(--spacing-s);
     }
+    .row .title {
+        margin-bottom: 0;
+    }
     .subSetting {
-        background-color: var(--inp);
         display: flex;
         justify-content: space-between;
-        gap: 10px;
+        align-items: center;
+        gap: var(--spacing-s);
         min-width: 0;
         width: 100%;
         box-sizing: border-box;
     }
+    .subSetting label {
+        border-radius: var(--rd);
+        border: 1px solid var(--bd);
+        background-color: var(--inp);
+        width: max(100px, 50%);
+        padding: var(--spacing-s);
+    }
     .rem, .new {
         display: flex;
         cursor: pointer;
+    }
+    .rem {
+        padding: 15px 0;
     }
     .listSetting > .col,
     .listSetting > .subSetting {
@@ -294,6 +434,53 @@
         min-width: 0;
         width: auto;
     } 
+    .topborder {
+        border-top: 1px solid var(--bd);
+        margin-top: var(--spacing-s);
+        padding-top: var(--spacing-m);
+    }
+    @media screen and (max-width: 760px) {
+        .main {
+            grid-template-columns: 100px 60vw;
+            gap: var(--spacing-s);
+        }
+        #saveConfig, #undoConfig {
+            width: 100px;
+            height: auto;
+        }
+    }
+    @media screen and (max-width: 650px) {
+        .main {
+            grid-template-columns: calc(100vw - 2*var(--spacing-s));
+            padding: var(--spacing-s);
+        }
+        .setting {
+            display: grid;
+            grid-template-columns: 50% calc(50% - var(--spacing-s));
+            gap: var(--spacing-s);
+        }
+        .category {
+            padding: var(--spacing-s);
+        }
+        #overview a {
+            display: none;
+        }
+        #overwiew {
+            height: 0;
+        }
+        #configActions {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            flex-direction: row;
+            justify-content: center;
+            width: 100%;
+        }
+        #saveConfig, #undoConfig {
+            width: 150px;
+            height: 42px;
+        }
+    }
 </style>
 {% include 'popups.html' %}
 <script>
@@ -310,16 +497,12 @@
             </button>
             <div class="col">
                 <div class="subSetting">
-                    <label for="rss_INDEX_url">URL:</label>
+                    <label for="rss_INDEX_url">URL</label>
                     <input class="cfg rss_url" pattern="https?://.+" type="text" id="rss_INDEX_url">
                 </div>
                 <div class="subSetting">
-                    <label for="rss_INDEX_regex">Regex:</label>
+                    <label for="rss_INDEX_regex">Regex</label>
                     <input class="cfg rss_regex" type="text" id="rss_INDEX_regex">
-                </div>
-                <div class="subSetting">
-                    <label for="rss_0_ep">Per season episodes:</label>
-                    <input type="checkbox" class="rss_ep" id="rss_INDEX_ep" checked>
                 </div>
             </div>
         `,
@@ -330,18 +513,17 @@
                 </svg>
             </button>
             <div class="subSetting">
-                <label>vcoded:</label>
+                <label></label>
                 <input class="cfg" type="text">
             </div>
         `
     }
 
-    selectors = document.querySelectorAll('.category')
     categories = {
-        "rss": selectors[5],
-        "encoding": selectors[6],
-        "subtitles": selectors[7],
-        "quicksync_options": selectors[8]
+        "rss": document.getElementById('rss'),
+        "encoding": document.getElementById('encodingSf'),
+        "subtitles": document.getElementById('subtitles'),
+        "quicksync_options": document.getElementById('encodingQs')
     }
 
     function parseValue(value) {
@@ -357,17 +539,17 @@
         if (!element) return
 
         if (type == 'checkbox') {
-            element.checked = Boolean(config[key])
+            element.checked = Boolean(object[key])
         } else {
             element.value = object[key] ?? ''
         }
 
-        element.addEventListener(type == 'checkbox' ? 'change' : 'input', (e) => {
+        element.oninput =  element.onchange = (e) => {
             value = type == 'checkbox' ? e.target.checked : e.target.value
             if (element.type == 'number') value = value == '' ? null : Number(value)
             object[key] = value
             checkChanges()
-        })
+        }
     }
 
     function renderRSS () {
@@ -381,11 +563,9 @@
 
             urlInp = div.querySelector('.rss_url')
             regexInp = div.querySelector('.rss_regex')
-            epInp = div.querySelector('.rss_ep')
 
             urlInp.value = feed.url || ''
             regexInp.value = feed.regex || ''
-            epInp.value = feed.per_season_episodes || true
 
             urlInp.oninput = (e) => { 
                 config.rss[index].url = e.target.value
@@ -393,10 +573,6 @@
             }
             regexInp.oninput = (e) => {
                 config.rss[index].regex = e.target.value
-                checkChanges()
-            }
-            epInp.oninput = (e) => {
-                config.rss[index].per_season_episodes = e.target.checked
                 checkChanges()
             }
 
@@ -410,7 +586,7 @@
         })
     }
 
-    function renderDict (container, object, renderFunction) {
+    function renderDict (container, object, renderFunction, prefix) {
         items = container.querySelectorAll('.listSetting')
         items.forEach(element => element.remove())
 
@@ -423,8 +599,8 @@
             input = div.querySelector('input')
             
             label.textContent = key + ':'
-            label.setAttribute('for', key)
-            input.id = key
+            label.setAttribute('for', prefix + key)
+            input.id = prefix + key
             input.value = object[key]
 
             input.oninput = (e) => { 
@@ -442,9 +618,9 @@
         })
     }
 
-    const renderEncoding = () => renderDict(categories.encoding, config.encoding, renderEncoding)
-    const renderQuicksync= () => renderDict(categories.quicksync_options, config.quicksync_options, renderQuicksync)
-    const renderSubtitles = () => renderDict(categories.subtitles, config.subtitles, renderSubtitles)
+    const renderEncoding = () => renderDict(categories.encoding, config.encoding, renderEncoding, 'sf_')
+    const renderQuicksync= () => renderDict(categories.quicksync_options, config.quicksync_options, renderQuicksync, 'qs_')
+    const renderSubtitles = () => renderDict(categories.subtitles, config.subtitles, renderSubtitles, 'sub_')
 
     function renderAll() {
         bindElement('sv_host', config, 'host');
@@ -467,11 +643,15 @@
         bindElement('it_partial', config, 'partial_interval');
         bindElement('it_remove', config, 'remove_after');
         bindElement('it_dltimeout', config, 'download_timeout');
+
         bindElement('ot_dlretries', config, 'download_retries');
         bindElement('ot_schedule', config, 'update_schedule_once_a_day', 'checkbox');
         bindElement('ot_encode', config, 'encode_when_no_language', 'checkbox');
         bindElement('ot_sharekeys', config, 'enable_shareKeys', 'checkbox');
-        bindElement('ot_quicksync', config, 'quicksync', 'checkbox');
+        bindElement('ot_download_ahead', config, 'download_ahead');
+
+        bindElement('ec_quicksync', config, 'quicksync', 'checkbox');
+        bindElement('ec_vf', config, 'vf_extra');
 
         renderRSS()
         renderEncoding()
@@ -480,7 +660,7 @@
     }
 
     categories.rss.querySelector('.new').addEventListener('click', () => {
-        config.rss.push({ url: '', regex: '', per_season_episodes: true })
+        config.rss.push({ url: '', regex: '' })
         renderRSS()
         checkChanges()
     })
@@ -536,7 +716,7 @@
                 renderAll()
                 checkChanges()
             } else {
-                alert("Coudn't save changes.")
+                alert("Couldn't save changes.")
             }
         })
     })

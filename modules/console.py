@@ -2,8 +2,9 @@ import datetime, colorama, logging, os
 from colorama import Fore, Back, Style
 
 class instance:
-    def __init__(self, debugMode=False, saveLogs=True):
+    def __init__(self, workdir, debugMode=False, saveLogs=True):
         self.logger = logging.getLogger('anivt')
+        self.workdir = workdir
         self.logger.setLevel(logging.DEBUG if debugMode else logging.INFO)
         self.logger.handlers = []
         self.logger.propagate = False
@@ -28,12 +29,12 @@ class instance:
         return filter
 
     def makeFile(self):
-        if not os.path.exists('logs'):
-            os.makedirs('logs')
+        if not os.path.exists(f'{self.workdir}/logs'):
+            os.makedirs(f'{self.workdir}/logs')
         
         today = datetime.datetime.now().strftime('%d-%m-%Y')
         self.logDate = today
-        file = f'logs/{today}.log'
+        file = f'{self.workdir}/logs/{today}.log'
         fh = logging.FileHandler(file)
         fh.setLevel(logging.DEBUG if self.debugMode else logging.INFO)
         fh.addFilter(self.fileFilter())

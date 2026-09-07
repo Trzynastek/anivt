@@ -1,6 +1,6 @@
 services:
     anivt:
-        image: anivt
+        image: ghcr.io/trzynu/anivt:latest
         container_name: anivt
         ports:
             - 7980:7980
@@ -9,7 +9,11 @@ services:
             - ./storage/mp4:/anivt/public/mp4
             - ./logs:/anivt/logs
             - ./configs:/anivt/configs
-        # Uncomment for quicksync support
+        environment:
+            ANILIST_REDIRECT: '${ANILIST_REDIRECT}'
+            ANILIST_CID: '${ANILIST_CID}'
+            ANILIST_SECRET: '${ANILIST_SECRET}'
+        # Intel iGPU passthrough for Quicksync support
         # devices:
         #   - /dev/dri:/dev/dri
         # group_add:

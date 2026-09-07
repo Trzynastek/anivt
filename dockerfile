@@ -7,11 +7,17 @@ RUN echo "deb http://deb.debian.org/debian bookworm main non-free-firmware non-f
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     fonts-roboto \
-    intel-media-va-driver-non-free \
-    libmfx1 \
     libva-drm2 \
     vainfo && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        apt-get update && apt-get install -y \
+        intel-media-va-driver-non-free \
+        libmfx1 \
+        apt-get clean && rm -rf /var/lib/apt/lists/*; \
+    fi
 
 RUN pip install --no-cache-dir \
     "flask[async]" \

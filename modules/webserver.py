@@ -83,8 +83,11 @@ class instance:
                     await asyncio.sleep(10)
 
     def updateConfig(self, old, new):
+        for k in list(old.keys()):
+            if k not in new:
+                del old[k]
         for k, v in new.items():
-            if isinstance(v, dict) and k in old:
+            if isinstance(v, dict) and isinstance(old.get(k), dict):
                 self.updateConfig(old[k], v)
             else:
                 old[k] = v
