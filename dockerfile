@@ -16,7 +16,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         apt-get update && apt-get install -y \
         intel-media-va-driver-non-free \
         libmfx1 \
-        apt-get clean && rm -rf /var/lib/apt/lists/*; \
+        && apt-get clean && rm -rf /var/lib/apt/lists/*; \
     fi
 
 RUN pip install --no-cache-dir \
