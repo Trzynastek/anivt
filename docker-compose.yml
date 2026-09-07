@@ -1,6 +1,6 @@
 services:
     anivt:
-        image: ghcr.io/trzynu/anivt:latest
+        image: ghcr.io/trzynastek/anivt:latest
         container_name: anivt
         ports:
             - 7980:7980
