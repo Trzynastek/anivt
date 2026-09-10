@@ -1,6 +1,6 @@
 from flask import Flask, request, send_from_directory, session, make_response, redirect, jsonify
 from flask_cors import CORS
-import asyncio, jwt, requests, threading, os, hashlib, time, secrets
+import asyncio, jwt, requests, threading, os, hashlib, time, secrets, ast
 from datetime import datetime, timedelta
 from waitress import serve
 from modules import variables as var
@@ -90,7 +90,10 @@ class instance:
             if isinstance(v, dict) and isinstance(old.get(k), dict):
                 self.updateConfig(old[k], v)
             else:
-                old[k] = v
+                try:
+                    old[k] = ast.literal_eval(v) if isinstance(v, str) else v
+                except (ValueError, SyntaxError):
+                    old[k] = v
 
     def createRoutes(self):
         @self.app.route('/api/logout')
