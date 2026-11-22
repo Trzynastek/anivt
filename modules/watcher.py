@@ -21,27 +21,50 @@ class instance:
         query = f'{{ MediaListCollection(userId: {uid}, type: ANIME, status_in: [CURRENT, PLANNING]) {{ lists {{ name entries {{ progress status media {{ id title {{ english romaji }} synonyms airingSchedule {{ edges {{ node {{ airingAt episode }} }} }} coverImage {{ large }} episodes description siteUrl }} }} }} }} }}'
 
         success = False
+        wait = 3
+        maxWait = 3600
+        multi = 3
         while not success:
-            res = requests.post(
-                'https://graphql.anilist.co',
-                headers = {
-                    'Content-Type': 'application/json',
-                    'Authorization': f'Bearer {var.config["anilist"]["token"]["access_token"]}',
-                },
-                json = {'query': query}
-            )
-            if res.status_code == 200:
-                success = True
-            else:
-                try:
-                    body = res.json()
-                except requests.exceptions.JSONDecodeError:
-                    body = res.text[:300]
-                var.console.warn("Couldn't get the watchlist. Retrying in 10s", variables={
-                    'status code': res.status_code,
-                    'response': body
+            try:
+                res = requests.post(
+                    'https://graphql.anilist.co',
+                    headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': f'Bearer {var.config["anilist"]["token"]["access_token"]}',
+                    },
+                    json = {'query': query}
+                )
+                if res.status_code == 200:
+                    success = True
+                elif res.status_code == 429:
+                    retryAfter = res.headers.get('Retry-After')
+                    if retryAfter:
+                        retryAfter = int(retryAfter)
+                    else:
+                        retryAfter = wait
+                        wait = min(wait * multi, maxWait)
+                    var.console.warn(f"Rate limited. Retrying in {retryAfter}s", variables={
+                        'status code': res.status_code,
+                        'response': body
+                    })
+                    await asyncio.sleep(retryAfter)
+                else:
+                    try:
+                        body = res.json()
+                    except requests.exceptions.JSONDecodeError:
+                        body = res.text[:300]
+                    var.console.warn(f"Couldn't get the watchlist. Retrying in {wait}s", variables={
+                        'status code': res.status_code,
+                        'response': body
+                    })
+                    await asyncio.sleep(wait)
+                    wait = min(wait * multi, maxWait)
+            except requests.RequestException as e:
+                var.console.warn(f"Couldn't get the watchlist. Retrying in {wait}s.", variables={
+                    'Error': e
                 })
-                await asyncio.sleep(10)
+                await asyncio.sleep(wait)
+                wait = min(wait * multi, maxWait)
 
         data = res.json()
         data = [entry for lst in data['data']['MediaListCollection']['lists'] for entry in lst['entries']]
@@ -104,7 +127,17 @@ class instance:
         if partial:
             var.console.debug('Running partial RSS check.')
             for source in var.config['rss']:
-                feed = feedparser.parse(source['url'])['entries']
+                try:
+                    feed = feedparser.parse(source['url'])
+                    if feed.get('bozo') and not feed.entries:
+                        raise ValueError(feed.bozo_exception)
+                    feed = feed.entries
+                except Exception as e:
+                    var.console.warn("Couldn't get the RSS feed.", variables={
+                        'URL': source['url'],
+                        'Error': str(e)
+                    })
+                    continue
                 if len(feed) == 0:
                     continue
 

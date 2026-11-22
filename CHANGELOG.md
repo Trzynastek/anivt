@@ -1,18 +1,6 @@
-## v0.1.0
+## v0.1.2
 
-First release!
+### Changes
 
-### Features
-
-- Anilist OAuth login.
-- Anilist watchlist sync.
-- Automatic downloads from RSS feeds.
-- Encoding with FFmpeg with Intel QuickSync support (amd64 only).
-- Configuration via web settings.
-- Optional shareable links for specific episodes.
-- Mobile compatible interface
-
-### Notes / Limitations
-
-- Requires season-based episode numbering in sources (e.g. S04E15, not E70).
-- host, port, session secret, sharekey toggle, and debug mode apply on restart.
+- Added guards for RSS feedparser and AniList to prevent crashes on failure.
+- Added backoff to AniList.
